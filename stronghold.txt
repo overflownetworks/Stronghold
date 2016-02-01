@@ -1,12 +1,10 @@
 "stronghold"
 {
-	"name"		"FTS: Stronghold"
-	"version"	"1.0"
+	"base"		"base"
+	"title"		"Stronghold"
+	"menusystem"	"1"
 
-	"author_name"	"RoaringCow/TehBigA"
-	"author_email"	"roaringcow@gmail.com"
-	"author_url"	""
-	
-	"info"		""
-	"hide"		"0"
+	"settings"
+	{
+	}
 }
