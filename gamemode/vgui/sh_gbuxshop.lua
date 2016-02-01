@@ -92,9 +92,7 @@ function PANEL:Init()
 	self.BuyMode:AddChoice( "Permanently" )
 	self.BuyMode:ChooseOptionID( 1 )
 	self.BuyMode:SetVisible( false )
-	function self.BuyMode.OnMousePressed( panel, mc )
-		if !self:IsSelected() then self:OnMousePressed( mc ) end
-	end
+
 	function self.BuyMode.OnSelect( panel, index, value, data )
 		self.m_iLicenseMode = index
 	end

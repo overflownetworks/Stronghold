@@ -62,7 +62,7 @@ local SCR_H_DIV_4 = nil
 function SKIN:DrawGenericBackground( x, y, w, h, color, skip_top )
 	if !SCR_H_DIV_4 then SCR_H_DIV_4 = ScrH() * 0.25 end
 
-	surface.SetDrawColor( color )
+	surface.SetDrawColor( color or Color(0, 0, 0) )
 	surface.DrawRect( x, y, w, h )
 
 	surface.SetDrawColor( 0, 0, 0, 120 )
