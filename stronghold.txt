@@ -1,4 +1,4 @@
-"Gamemode"
+"stronghold"
 {
 	"name"		"FTS: Stronghold"
 	"version"	"1.0"
