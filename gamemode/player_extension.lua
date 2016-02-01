@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -35,7 +35,7 @@ if CLIENT then
 	function meta:SetViewOffset( pos )
 		self.m_vViewOffset = pos
 	end
-	
+
 	function meta:SetViewOffsetDucked( pos )
 		self.m_vViewOffsetDucked = pos
 	end
@@ -48,20 +48,20 @@ function meta:CreateServerSideRagdoll()
 	ragdoll:SetAngles( self:GetAngles() )
 	ragdoll:Spawn()
 	ragdoll:Activate()
-	
+
 	ragdoll:SetCollisionGroup( COLLISION_GROUP_WEAPON )
-	
+
 	local vel = self:GetVelocity()
 	for index=0, ragdoll:GetPhysicsObjectCount() do
 		local pos, ang = self:GetBonePosition( ragdoll:TranslatePhysBoneToBone(index) )
 		local rd_physobj = ragdoll:GetPhysicsObjectNum( index )
 		if IsValid( rd_physobj ) then
 			rd_physobj:SetPos( pos )
-			rd_physobj:SetAngle( ang )
+			rd_physobj:SetAngles( ang )
 			rd_physobj:SetVelocity( vel * (rd_physobj:GetMass()/85) * 2 )
 		end
 	end
-	
+
 	table.insert( GAMEMODE.Ragdolls, {ent=ragdoll,time=CurTime()} )
 end
 
@@ -72,7 +72,7 @@ function meta:SaveData()
 	local data = { steamid = steamid }
 	data.Statistics = self.Statistics
 	data.Loadouts = self.Loadouts
-	
+
 	data.Items = table.Copy( self.Items )
 	for k, v in pairs(data.Items) do
 		local ammo = k
@@ -82,12 +82,12 @@ function meta:SaveData()
 		local additional = self:GetAmmoCount( ammo )  -- If the player is alive - get the held ammo then save
 		data.Items[k].count = data.Items[k].count + additional
 	end
-	
+
 	if data.Items == nil then data.Items = {} end
 	data.Items["money"] = { type=0, count=self.Money }
-	
+
 	data.Licenses = self.Licenses
-	
+
 	local encoded = glon.encode( data )
 	file.Write( "Stronghold/PlayerInfo/"..string.gsub(steamid,":","_")..".txt", encoded )
 end
@@ -95,8 +95,8 @@ end
 function meta:FailedInitialize()
 	if !IsValid( self ) then return end
 	if self:GetInitialized() == INITSTATE_OK then return end
-	
-	self:SendLua( [[surface.CreateFont("coolvetica",48,700,true,false,"IF")]] )
+
+	self:SendLua( [[surface.CreateFont( "IF", font = "coolvetica", size = 48, weight = 700, antialias = true, additive = false})]] )
 	self:SendLua( [[function __IF1()
 		surface.SetFont( "IF" )
 		local sw, sh = ScrW(), ScrH()
@@ -196,8 +196,8 @@ end
 g_SBoxObjects = {}
 
 function meta:CheckLimit( str )
-	if SinglePlayer() then return true end
-	
+	if game.SinglePlayer() then return true end
+
 	local c = server_settings.Int( "sbox_max"..str, 0 )
 	if c < 0 then return true end
 	if self:GetCount( str ) > c-1 then self:LimitHit( str ) return false end
@@ -216,15 +216,15 @@ function meta:GetCount( str, minus )
 
 	local key = self:UniqueID()
 	local tab = g_SBoxObjects[key]
-	
-	if !tab || !tab[str] then 
+
+	if !tab || !tab[str] then
 		self:SetNetworkedInt( "Count."..str, 0 )
-		return 0 
+		return 0
 	end
 
 	local c = 0
 	for k, v in pairs(tab[str]) do
-		if v:IsValid() then 
+		if v:IsValid() then
 			c = c + 1
 		else
 			tab[str][k] = nil
@@ -242,7 +242,7 @@ function meta:AddCount( str, ent )
 		g_SBoxObjects[ key ][ str ] = g_SBoxObjects[ key ][ str ] or {}
 
 		local tab = g_SBoxObjects[ key ][ str ]
-		
+
 		if IsValid( ent ) then
 			table.insert( tab, ent )
 			self:GetCount( str )
@@ -346,30 +346,34 @@ end
 if SERVER then
 	function meta:SendStatistics( ply )
 		if !self.Statistics then self.Statistics = {} end
-		datastream.StreamToClients( ply, "sh_statistics", {ply=self,tbl=self.Statistics} )
+		net.Start("sh_statistics")
+			net.WriteEntity(self)
+			net.WriteTable(self.Statistics)
+		net.Send(ply)
 	end
 	concommand.Add( "sh_requeststats",
 		function( ply, _, args )
 			local other = Entity( tonumber(args[1]) )
 			if IsValid( other ) then other:SendStatistics( ply ) end
 		end )
-		
+
 	function meta:SaveStatistics()
 		if self:GetInitialized() != INITSTATE_OK then return end
 		--sqlx.UpdatePlayerData( "sh_statistics", self, self.Statistics )
 	end
 end
 
-local function RecieveStatistics( _, _, _, decoded )
-	if IsValid( decoded.ply ) then 
-		decoded.ply.Statistics = decoded.tbl or {}
-		decoded.ply.StatisticsUpdated = os.date( "%I:%M:%S %p" )
+net.Receive("sh_statistics", function( _, ply)
+	local ply = net.ReadEntity()
+	local statistics = net.ReadTable()
+	if IsValid( ply ) then
+		ply.Statistics = statistics or {}
+		ply.StatisticsUpdated = os.date( "%I:%M:%S %p" )
 		if ValidPanel( GAMEMODE.HelpFrame ) and ValidPanel( GAMEMODE.HelpFrame.StatsPanel ) then
-			GAMEMODE.HelpFrame.StatsPanel:PlayerSelected( decoded.ply )
+			GAMEMODE.HelpFrame.StatsPanel:PlayerSelected( ply )
 		end
 	end
-end
-datastream.Hook( "sh_statistics", RecieveStatistics )
+end)
 
 -- ----------------------------------------------------------------------------------------------------
 
@@ -382,7 +386,7 @@ AccessorFunc( meta, "m_strSpawnedLoadoutExplosive", "SpawnedLoadoutExplosive", "
 
 function meta:SetLoadout( name )
 	if !self.Loadouts then self.Loadouts = {} end
-	
+
 	if self.Loadouts[name] then
 		self.m_strLoadoutPrimary = self.Loadouts[name].primary
 		self.m_strLoadoutSecondary = self.Loadouts[name].secondary
@@ -392,7 +396,7 @@ end
 
 function meta:EditLoadout( name, primary, secondary, explosive )
 	if !self.Loadouts then self.Loadouts = {} end
-	
+
 	if !GAMEMODE.PrimaryWeapons[primary] or !GAMEMODE.SecondaryWeapons[secondary] or !GAMEMODE.Explosives[explosive] then return end
 	self.Loadouts[name] = { primary=primary, secondary=secondary, explosive=explosive }
 end
@@ -409,7 +413,7 @@ end
 
 function meta:RemoveLoadout( name )
 	if !self.Loadouts then self.Loadouts = {} end
-	
+
 	self.Loadouts[name] = nil
 	--if SERVER then sqlx.DeletePlayerData( "sh_loadouts", self, {name={"=",name}} ) end
 end
@@ -417,7 +421,7 @@ end
 function meta:SaveLoadouts()
 	if self:GetInitialized() != INITSTATE_OK then return end
 	if !self.Loadouts then self.Loadouts = {} end
-	
+
 	--[[sql.Begin()
 	for k, v in pairs(self.Loadouts) do
 		sqlx.DeletePlayerData( "sh_loadouts", self, {name={"=",k}} )
@@ -426,24 +430,6 @@ function meta:SaveLoadouts()
 	sql.Commit()]]
 end
 
-local function RecieveLoadouts( _, _, _, decoded )
-	local ply = LocalPlayer()
-	ply.Loadouts = nil
-	ply.Loadouts = decoded
-	GAMEMODE.LoadoutFrame:RefreshLoadouts()
-end
-if CLIENT then datastream.Hook( "sh_loadouts", RecieveLoadouts ) end
-
-local function RecieveLoadout( _, _, _, decoded )
-	local ply = LocalPlayer()
-	ply.Loadouts = ply.Loadouts or {}
-	table.Merge( ply.Loadouts[k], decoded )
-	--[[for k, v in pairs(decoded) do
-		ply.Loadouts[k] = v
-	end]]
-	GAMEMODE.LoadoutFrame:RefreshLoadouts()
-end
-if CLIENT then datastream.Hook( "sh_loadout", RecieveLoadout ) end
 
 -- ----------------------------------------------------------------------------------------------------
 
@@ -459,18 +445,18 @@ end
 
 function meta:SetLicenseTime( type, class, time )
 	if !self.Licenses then self.Licenses = { [1]={weapon_sh_mp5a4=-1}, [2]={weapon_sh_p228=-1} } end
-	
+
 	if type == 1 or type == 2 or type == 5 then
 		if !self.Licenses[type] then self.Licenses[type] = {} end
 		self.Licenses[type][class] = time
-		
+
 		self:SaveLicenses()
 	end
 end
 
 function meta:GetLicenseTimeLeft( type, class )
 	if !self.Licenses then self.Licenses = { [1]={weapon_sh_mp5a4=-1}, [2]={weapon_sh_p228=-1} } end
-	
+
 	if type == 1 or type == 2 or type == 5 then
 		local ostime = os.time()
 		if !self.Licenses[type] then self.Licenses[type] = {} end
@@ -480,28 +466,28 @@ function meta:GetLicenseTimeLeft( type, class )
 			return math.max( 0, (self.Licenses[type][class] or 0)-ostime )
 		end
 	end
-	
+
 	return 0
 end
 
 function meta:AddLicenseTime( type, class, time )
 	if !self.Licenses then self.Licenses = { [1]={weapon_sh_mp5a4=-1}, [2]={weapon_sh_p228=-1} } end
-	
+
 	if type == 1 or type == 2 or type == 5 then
 		if !self.Licenses[type] then self.Licenses[type] = {} end
 		self.Licenses[type][class] = (self.Licenses[type][class] or os.time()) + time
-		
+
 		self:SaveLicenses()
 	end
 end
 
 function meta:RemoveLicense( type, class )
 	if !self.Licenses then self.Licenses = { [1]={weapon_sh_mp5a4=-1}, [2]={weapon_sh_p228=-1} } end
-	
+
 	if type == 1 or type == 2 or type == 5 then
 		if !self.Licenses[type] then self.Licenses[type] = {} end
 		self.Licenses[type][class] = nil
-		
+
 		self:SaveLicenses()
 	end
 end
@@ -509,7 +495,7 @@ end
 function meta:SaveLicenses()
 	if self:GetInitialized() != INITSTATE_OK then return end
 	if !self.Licenses then self.Licenses = { [1]={weapon_sh_mp5a4=-1}, [2]={weapon_sh_p228=-1} } end
-	
+
 	--[[sql.Begin()
 	for k, v in pairs(self.Licenses[1] or {}) do
 		if !table.HasValue( DoNotSaveLicenses, k ) then
@@ -531,24 +517,6 @@ function meta:SaveLicenses()
 	end
 	sql.Commit()]]
 end
-
-local function RecieveLicenses( _, _, _, decoded )
-	local ply = LocalPlayer()
-	ply.Licenses = nil
-	ply.Licenses = decoded
-	GAMEMODE.LoadoutFrame:RefreshLicenses()
-	GAMEMODE.LoadoutFrame:RefreshHats()
-end
-if CLIENT then datastream.Hook( "sh_licenses", RecieveLicenses ) end
-
-local function RecieveLicense( _, _, _, decoded )
-	local ply = LocalPlayer()
-	ply.Licenses = ply.Licenses or { [1]={}, [2]={} }
-	table.Merge( ply.Licenses, decoded )
-	GAMEMODE.LoadoutFrame:RefreshLicenses()
-	GAMEMODE.LoadoutFrame:RefreshHats()
-end
-if CLIENT then datastream.Hook( "sh_license", RecieveLicense ) end
 
 -- ----------------------------------------------------------------------------------------------------
 
@@ -624,7 +592,7 @@ end
 function meta:SetItem( type, item, count )
 	if !self.Items then self.Items = {} end
 	count = math.max( 0, count )
-	
+
 	if !self.Items[item] then
 		if type == nil then
 			type = 0
@@ -665,7 +633,7 @@ function meta:BuyItem( type, class, amount )
 	if !IsValid( self ) or GAMEMODE.GameOver then return end
 
 	if type == 1 and GAMEMODE.PrimaryWeapons[class] then
-		
+
 		--ErrorNoHalt( "Giving primary...\n" )
 		local cost = (amount == 2 and GAMEMODE.PrimaryWeapons[class].price or GAMEMODE.PrimaryWeapons[class].price*0.10)
 		if cost > 0 and self:GetMoney() >= cost then
@@ -678,9 +646,9 @@ function meta:BuyItem( type, class, amount )
 			SH_SendClientLicense( self, type, class )
 			self:AddMoney( -cost )
 		end
-		
+
 	elseif type == 2 and GAMEMODE.SecondaryWeapons[class] then
-		
+
 		--ErrorNoHalt( "Giving secondary...\n" )
 		local cost = (amount == 2 and GAMEMODE.SecondaryWeapons[class].price or GAMEMODE.SecondaryWeapons[class].price*0.10)
 		if cost > 0 and self:GetMoney() >= cost then
@@ -692,9 +660,9 @@ function meta:BuyItem( type, class, amount )
 			SH_SendClientLicense( self, type, class )
 			self:AddMoney( -cost )
 		end
-		
+
 	elseif type == 3 and GAMEMODE.Explosives[class] then
-		
+
 		--ErrorNoHalt( "Giving explosives...\n" )
 		local cost = GAMEMODE.Explosives[class].price * amount
 		if cost > 0 and self:GetMoney() >= cost then
@@ -702,9 +670,9 @@ function meta:BuyItem( type, class, amount )
 			self:AddMoney( -cost )
 			SH_SendClientItem( self, class )
 		end
-		
+
 	elseif type == 4 and GAMEMODE.Ammo[class] then
-		
+
 		--ErrorNoHalt( "Giving ammo...\n" )
 		local cost = GAMEMODE.Ammo[class].price * amount
 		if cost > 0 and self:GetMoney() >= cost then
@@ -712,9 +680,9 @@ function meta:BuyItem( type, class, amount )
 			self:AddMoney( -cost )
 			SH_SendClientItem( self, class )
 		end
-		
+
 	elseif type == 5 and GAMEMODE.Hats[class] then
-	
+
 		--ErrorNoHalt( "Giving hat...\n" )
 		local cost = GAMEMODE.Hats[class].price
 		if cost > 0 and self:GetMoney() >= cost then
@@ -722,9 +690,9 @@ function meta:BuyItem( type, class, amount )
 			SH_SendClientLicense( self, type, class )
 			self:AddMoney( -cost )
 		end
-		
+
 	end
-	
+
 	self:SendMoneyAndMultiplier()
 end
 
@@ -732,17 +700,17 @@ function meta:SaveItems()
 	if self:GetInitialized() != INITSTATE_OK then return end
 	if !self.Items then self.Items = {} end
 	local alive = true -- self:Alive()
-	
+
 	--[[sql.Begin()
 	for k, v in pairs(self.Items) do
 		local ammo = k
-		
+
 		if grenades[k] and self:GetWeapon( k ) ~= NULL then
 			ammo = "grenade"
-			
+
 			print( "adding grenade: ".. k )
 		end
-		
+
 		local additional = alive and self:GetAmmoCount( ammo ) or 0 -- If the player is alive - get the held ammo then save
 		sqlx.DeletePlayerData( "sh_inventory", self, {item={"=",k}} )
 		sqlx.CreatePlayerData( "sh_inventory", self, {type=v.type,item=k,count=v.count+additional} )
@@ -750,28 +718,12 @@ function meta:SaveItems()
 	sql.Commit()]]
 end
 
-local function RecieveItems( _, _, _, decoded )
-	local ply = LocalPlayer()
-	ply.Items = nil
-	ply.Items = decoded
-	GAMEMODE.LoadoutFrame:RefreshLicenses()
-end
-if CLIENT then datastream.Hook( "sh_items", RecieveItems ) end
-
-local function RecieveItem( _, _, _, decoded )
-	local ply = LocalPlayer()
-	ply.Items = ply.Items or {}
-	table.Merge( ply.Items, decoded )
-	GAMEMODE.LoadoutFrame:RefreshLicenses()
-end
-if CLIENT then datastream.Hook( "sh_item", RecieveItem ) end
-
 -- ----------------------------------------------------------------------------------------------------
 
 function meta:EnableHat( name )
 	local rf = RecipientFilter()
 	rf:AddAllPlayers()
-	
+
 	umsg.Start( "sh_hat", rf )
 		umsg.Entity( self )
 		if !name or name == "" then
@@ -801,7 +753,7 @@ function meta:CheckSpawnpoints( nosetpos, tried, tries )
 			self:CheckSpawnpoints( nosetpos, tried, tries )
 			return
 		end
-		
+
 		local spawnpos
 		local pos, up = ent:GetPos()--[[ent:LocalToWorld( ent:OBBCenter() )]], ent:GetAngles():Up()
 		if up.z < -0.70 then
@@ -811,7 +763,7 @@ function meta:CheckSpawnpoints( nosetpos, tried, tries )
 			local zscale = (-up.z+1) * 3
 			spawnpos = ent:GetPos() + (3+(20*zscale)) * up
 		end
-		
+
 		local filter = ents.FindByClass( "sent_spawnpoint" )
 		table.Add( filter, ents.FindByClass("prop_ragdoll") )
 
@@ -835,7 +787,7 @@ function meta:CheckSpawnpoints( nosetpos, tried, tries )
 					filter=filter
 				}
 			)
-				
+
 			if trace.Fraction < 0.95 then
 				table.insert( tried, ent )
 				tries = tries + 1
@@ -844,9 +796,62 @@ function meta:CheckSpawnpoints( nosetpos, tried, tries )
 				return
 			end
 		end
-		
+
 		if !nosetpos then self:SetPos( spawnpos ) end
 	elseif !self.SpawnPoint then
 		self.SpawnPoint = {}
 	end
+end
+
+if CLIENT then
+	net.Receive("sh_loadouts", function()
+		local ply = LocalPlayer()
+		ply.Loadouts = net.ReadTable()
+		GAMEMODE.LoadoutFrame:RefreshLoadouts()
+	end)
+
+
+	net.Receive("sh_loadout", function()
+		local ply = LocalPlayer()
+		local loadout = net.ReadTable()
+		ply.Loadouts = ply.Loadouts or {}
+		table.Merge( ply.Loadouts[k], loadout )
+		--[[for k, v in pairs(decoded) do
+			ply.Loadouts[k] = v
+		end]]
+		GAMEMODE.LoadoutFrame:RefreshLoadouts()
+	end)
+
+
+	net.Receive("sh_licenses", function()
+		local ply = LocalPlayer()
+		ply.Licenses = nil
+		ply.Licenses = net.ReadTable()
+		GAMEMODE.LoadoutFrame:RefreshLicenses()
+		GAMEMODE.LoadoutFrame:RefreshHats()
+	end)
+
+	net.Receive("sh_license", function()
+		local ply = LocalPlayer()
+		local license = net.ReadTable()
+		ply.Licenses = ply.Licenses or { [1]={}, [2]={} }
+		table.Merge( ply.Licenses, license )
+		GAMEMODE.LoadoutFrame:RefreshLicenses()
+		GAMEMODE.LoadoutFrame:RefreshHats()
+	end)
+
+	net.Receive("sh_items", function()
+		local ply = LocalPlayer()
+		ply.Items = nil
+		ply.Items = net.ReadTable()
+		GAMEMODE.LoadoutFrame:RefreshLicenses()
+	end)
+
+	net.Receive("sh_item", function()
+		local ply = LocalPlayer()
+		local item = net.ReadTable()
+		ply.Items = ply.Items or {}
+		table.Merge( ply.Items, item )
+		GAMEMODE.LoadoutFrame:RefreshLicenses()
+	end)
 end

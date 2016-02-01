@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -64,19 +64,19 @@ function SKIN:DrawGenericBackground( x, y, w, h, color, skip_top )
 
 	surface.SetDrawColor( color )
 	surface.DrawRect( x, y, w, h )
-	
+
 	surface.SetDrawColor( 0, 0, 0, 120 )
 	if !skip_top then surface.DrawRect( x, y, w-1, 1 ) end
 	surface.DrawRect( x, y, 1, h-1 )
 	surface.DrawRect( x, y+h-1, w, 1 )
 	surface.DrawRect( x+w-1, y, 1, h-1 )
-	
+
 	surface.SetDrawColor( 200, 200, 200, 120 )
 	if !skip_top then surface.DrawRect( x+1, y+1, w-2, 1 ) end
 	surface.DrawRect( x+1, y+1, 1, h-2 )
 	surface.DrawRect( x+1, y+h-2, w-2, 1 )
 	surface.DrawRect( x+w-2, y+1, 1, h-2 )
-	
+
 	local scale = math.Clamp( h/SCR_H_DIV_4, 0, 1 )
 	surface.SetDrawColor( 0, 0, 0, 80+80*scale ) -- Smaller it is the lighter
 	surface.SetTexture( TEX_GRADIENT )
@@ -88,19 +88,19 @@ function SKIN:DrawFlippedBackground( x, y, w, h, color, skip_top )
 
 	surface.SetDrawColor( color )
 	surface.DrawRect( x, y, w, h )
-	
+
 	surface.SetDrawColor( 0, 0, 0, 120 )
 	if !skip_top then surface.DrawRect( x, y, w-1, 1 ) end
 	surface.DrawRect( x, y, 1, h-1 )
 	surface.DrawRect( x, y+h-1, w, 1 )
 	surface.DrawRect( x+w-1, y, 1, h-1 )
-	
+
 	surface.SetDrawColor( 200, 200, 200, 120 )
 	if !skip_top then surface.DrawRect( x+1, y+1, w-2, 1 ) end
 	surface.DrawRect( x+1, y+1, 1, h-2 )
 	surface.DrawRect( x+1, y+h-2, w-2, 1 )
 	surface.DrawRect( x+w-2, y+1, 1, h-2 )
-	
+
 	local scale = math.Clamp( h/SCR_H_DIV_4, 0, 1 )
 	surface.SetDrawColor( 0, 0, 0, 80+80*scale ) -- Smaller it is the lighter
 	surface.SetTexture( TEX_GRADIENT_UP )
@@ -112,19 +112,19 @@ function SKIN:DrawRightBackground( x, y, w, h, color )
 
 	surface.SetDrawColor( color )
 	surface.DrawRect( x, y, w, h )
-	
+
 	surface.SetDrawColor( 0, 0, 0, 120 )
 	surface.DrawRect( x, y, w-1, 1 )
 	surface.DrawRect( x, y, 1, h-1 )
 	surface.DrawRect( x, y+h-1, w, 1 )
 	surface.DrawRect( x+w-1, y, 1, h-1 )
-	
+
 	surface.SetDrawColor( 200, 200, 200, 120 )
 	surface.DrawRect( x+1, y+1, w-2, 1 )
 	surface.DrawRect( x+1, y+1, 1, h-2 )
 	surface.DrawRect( x+1, y+h-2, w-2, 1 )
 	surface.DrawRect( x+w-2, y+1, 1, h-2 )
-	
+
 	local scale = math.Clamp( h/SCR_H_DIV_4, 0, 1 )
 	surface.SetDrawColor( 0, 0, 0, 80+80*scale ) -- Smaller it is the lighter
 	surface.SetTexture( TEX_GRADIENT_RIGHT )
@@ -136,19 +136,19 @@ function SKIN:DrawLeftBackground( x, y, w, h, color )
 
 	surface.SetDrawColor( color )
 	surface.DrawRect( x, y, w, h )
-	
+
 	surface.SetDrawColor( 0, 0, 0, 120 )
 	surface.DrawRect( x, y, w-1, 1 )
 	surface.DrawRect( x, y, 1, h-1 )
 	surface.DrawRect( x, y+h-1, w, 1 )
 	surface.DrawRect( x+w-1, y, 1, h-1 )
-	
+
 	surface.SetDrawColor( 200, 200, 200, 120 )
 	surface.DrawRect( x+1, y+1, w-2, 1 )
 	surface.DrawRect( x+1, y+1, 1, h-2 )
 	surface.DrawRect( x+1, y+h-2, w-2, 1 )
 	surface.DrawRect( x+w-2, y+1, 1, h-2 )
-	
+
 	local scale = math.Clamp( h/SCR_H_DIV_4, 0, 1 )
 	surface.SetDrawColor( 0, 0, 0, 80+80*scale ) -- Smaller it is the lighter
 	surface.SetTexture( TEX_GRADIENT_RIGHT )
@@ -164,7 +164,7 @@ end
 
 function SKIN:PaintTooltip( panel )
 	local w, h = panel:GetSize()
-	
+
 	DisableClipping( true )
 
 	for i=1, 4 do
@@ -179,7 +179,7 @@ function SKIN:PaintTooltip( panel )
 
 	self:DrawGenericBackground( 0, 0, w, h, self.tooltip )
 	panel:DrawArrow( 0, 0 )
-	
+
 	DisableClipping( false )
 end
 
@@ -189,7 +189,7 @@ function SKIN:PaintPanel( panel )
 	if panel.m_bPaintBackground then
 		local w, h = panel:GetSize()
 		self:DrawGenericBackground( 0, 0, w, h, panel.m_bgColor or self.panel_transback )
-	end	
+	end
 end
 
 -- FORM       ----------------------------------------------------------------------------------------------------
@@ -197,7 +197,7 @@ end
 function SKIN:PaintForm( panel )
 	local x, y, w, h = 0, 9, panel:GetWide(), panel:GetTall()-9
 	self:DrawGenericBackground( x, y, w, h, self.bg_color, true )
-	
+
 	local lw = panel.Label:GetWide()
 	surface.SetDrawColor( 0, 0, 0, 120 )
 	surface.DrawRect( x, y, 3, 1 )
@@ -211,14 +211,14 @@ end
 
 function SKIN:PaintFrame( panel )
 	local w, h = panel:GetWide(), panel:GetTall()
-	
+
 	if LocalPlayer then
 		--DisableClipping( true )
 		local x, y = panel:LocalToScreen( 0, 0 )
-		surface.SetMaterial( MAT_BLUR )	
+		surface.SetMaterial( MAT_BLUR )
 		surface.SetDrawColor( 255, 255, 255, 255 )
 		for i=0.33, 1, 0.33 do
-			MAT_BLUR:SetMaterialFloat( "$blur", 5*i )
+			MAT_BLUR:SetFloat( "$blur", 5*i )
 			if render then render.UpdateScreenEffectTexture() end
 			surface.DrawTexturedRect( -x, -y, ScrW(), ScrH() )
 		end
@@ -226,7 +226,7 @@ function SKIN:PaintFrame( panel )
 		--surface.DrawRect( 0, 0, w, h )
 		--DisableClipping( false )
 	end
-	
+
 	self:DrawGenericBackground( 0, 0, w, h, self.bg_color )
 	surface.SetDrawColor( 120, 120, 120, 150 )
 	surface.DrawRect( 1, 22, w-1, 1 )
@@ -244,7 +244,7 @@ function SKIN:PaintPropertySheet( panel )
 		surface.SetDrawColor( self.colPropertySheet )
 		surface.SetTexture( TEX_GRADIENT )
 		surface.DrawTexturedRect( 2, Offset, w-4, h*0.75 )
-		
+
 		local tab = ActiveTab:GetWide()
 		local x, _ = ActiveTab:GetPos()
 		local tab_offset = -panel.tabScroller.pnlCanvas.x --panel.tabScroller.OffsetX
@@ -293,7 +293,7 @@ function SKIN:PaintButton( panel )
 		if panel:GetDisabled() then
 			self:DrawFlippedBackground( 0, 0, panel:GetWide(), panel:GetTall(), self.control_color_dark )
 			return
-		elseif panel.Depressed || panel:GetSelected() then
+		elseif panel.Depressed then
 			self:DrawGenericBackground( 0, 0, panel:GetWide(), panel:GetTall(), self.control_color_active )
 			return
 		elseif panel.Hovered then
@@ -319,7 +319,7 @@ function SKIN:PaintTextEntry( panel )
 	if panel.m_bBackground then
 		self:DrawGenericBackground( 0, 0, panel:GetWide(), panel:GetTall(), self.colTextEntryBG )
 	end
-	
+
 	panel:DrawTextEntryText( panel.m_colText, panel.m_colHighlight, panel.m_colCursor )
 end
 

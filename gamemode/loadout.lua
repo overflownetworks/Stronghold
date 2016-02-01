@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -12,8 +12,10 @@ function SH_SendClientLoadouts( ply )
 
 	local loadouts = ply:GetLoadouts()
 	if !loadouts then return end
-	
-	datastream.StreamToClients( ply, "sh_loadouts", loadouts )
+
+	net.Start("sh_loadouts")
+		net.WriteTable(loadouts)
+	net.Send(ply)
 end
 
 function SH_SendClientLoadout( ply, name )
@@ -21,8 +23,10 @@ function SH_SendClientLoadout( ply, name )
 
 	local loadout = ply:GetLoadout( name )
 	if !loadout then return end
-	
-	datastream.StreamToClients( ply, "sh_loadout", {[name]=loadout} )
+
+	net.Start("sh_loadout")
+		net.WriteTable({[name]=loadout})
+	net.Send(ply)
 end
 
 concommand.Add( "sh_removeloadout",

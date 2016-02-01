@@ -52,7 +52,7 @@ function SWEP:InitializeTools()
 
 	local i, count = 0, table.Count( self.Tool )
 	self.ToolAngBetween = math.pi * 2 / count
-	
+
 	for k, v in pairs(self.Tool) do
 		tbl[k] = table.Copy(v)
 		tbl[k].SWEP = self
@@ -71,33 +71,33 @@ function SWEP:Think()
 	if CLIENT then
 		self:RadialThink()
 	end
-	
+
 	self.Mode = self.Owner:GetInfo( "gmod_toolmode" )
 	local mode = self:GetMode()
 	local tool = self:GetToolObject()
-	
+
 	if !tool then return end
-	
+
 	tool:CheckObjects()
-	
+
 	self.last_mode = self.current_mode
 	self.current_mode = mode
-	
-	if !tool:Allowed() then 
-		self:GetToolObject( self.last_mode ):ReleaseGhostEntity() 
+
+	if !tool:Allowed() then
+		self:GetToolObject( self.last_mode ):ReleaseGhostEntity()
 		return
 	end
-	
+
 	if self.last_mode != self.current_mode then
 		if !self:GetToolObject( self.last_mode ) then return end
 		self:GetToolObject( self.last_mode ):Holster()
 		self:SetFireMode( 0 )
 	end
-	
+
 	self.Primary.Automatic = tool.LeftClickAutomatic or false
 	self.Secondary.Automatic = tool.RightClickAutomatic or false
 	self.RequiresTraceHit = tool.RequiresTraceHit or true
-	
+
 	tool:Think()
 end
 
@@ -105,20 +105,25 @@ function SWEP:Authorize()
 	local mode = self:GetMode()
 	local tool = self:GetToolObject()
 	if !tool then return end
-	
+
 	local ply = self:GetOwner()
 	local pos = ply:GetShootPos()
-	local trace = util.TraceLine( {start=pos,endpos=pos+(tool.TraceDistance or 200)*ply:GetAimVector(),mask=(CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_MONSTER|CONTENTS_WINDOW|CONTENTS_DEBRIS|CONTENTS_GRATE|CONTENTS_AUX),filter=ply} )
-	
+	local trace = util.TraceLine({
+		start = pos,
+		endpos = pos+(tool.TraceDistance or 200)*ply:GetAimVector(),
+		mask = bit.bor(CONTENTS_SOLID, CONTENTS_MOVEABLE, CONTENTS_MONSTER, CONTENTS_WINDOW, CONTENTS_DEBRIS, CONTENTS_GRATE, CONTENTS_AUX),
+		filter=ply
+	})
+
 	if tool.NoAuthOnPlayer and IsValid( trace.Entity ) and trace.Entity:IsPlayer() then return end
 	if tool.NoAuthOnWorld and trace.HitWorld then return end
 	if tool.RequiresTraceHit and !trace.Hit then return end
-	
+
 	tool:CheckObjects()
-	
+
 	if !tool:Allowed() then return end
 	if IsValid( trace.Entity ) and !gamemode.Call( "CanTool", self.Owner, trace, mode ) then return end
-	
+
 	return trace, tool
 end
 
@@ -126,7 +131,7 @@ function SWEP:Reload()
 	if !TOOL_ALTERNATEINPUT:GetBool() then
 		if self:GetOwner():KeyDownLast( IN_RELOAD ) then return end
 		self:EmitSound( self.ModeSound )
-		
+
 		if CLIENT then return end
 
 		if self:GetFireMode() == 0 then
@@ -138,8 +143,8 @@ function SWEP:Reload()
 end
 
 function SWEP:PrimaryAttack()
-	if self.Owner:KeyDown( IN_SPEED ) and self.Owner:KeyDown( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) then return end
-	
+	if self.Owner:KeyDown( IN_SPEED ) and self.Owner:KeyDown( bit.bor(IN_FORWARD, IN_BACK, IN_MOVELEFT, IN_MOVERIGHT) ) then return end
+
 	local trace, tool = self:Authorize()
 	if trace == nil then return end
 
@@ -158,13 +163,13 @@ end
 
 function SWEP:SecondaryAttack()
 	if TOOL_ALTERNATEINPUT:GetBool() then
-		if self.Owner:KeyDown( IN_SPEED ) and self.Owner:KeyDown( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) then return end
-		
+		if self.Owner:KeyDown( IN_SPEED ) and self.Owner:KeyDown( bit.bor(IN_FORWARD, IN_BACK, IN_MOVELEFT, IN_MOVERIGHT) ) then return end
+
 		local trace, tool = self:Authorize()
 		if trace == nil then return end
-		
+
 		if !tool:RightClick( trace ) then return end
-		
+
 		self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone )
 	end
 end
@@ -187,7 +192,7 @@ function SWEP:DoShootEffect( hitpos, hitnormal, entity, physbone )
 		effectdata:SetEntity( self.Weapon )
 		effectdata:SetAttachment( 1 )
 	util.Effect( "ToolTracer", effectdata )
-	
+
 	local fx = EffectData()
 	fx:SetEntity(self.Weapon)
 	fx:SetOrigin(self.Owner:GetShootPos())
@@ -237,11 +242,11 @@ include( "tool.lua" )
 local IRONSIGHT_TIME = 0.1
 local DashDelta = 0
 function SWEP:GetViewModelPosition( pos, ang )
-	if (not self.IronSightsPos) then return pos, ang 
+	if (not self.IronSightsPos) then return pos, ang
 	end
 
 	local bIron = self.bInIronSight
-	if self.Owner:KeyDown( IN_FORWARD| IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) and self.Owner:KeyDown( IN_SPEED ) then
+	if self.Owner:KeyDown( bit.bor(IN_FORWARD, IN_BACK, IN_MOVELEFT, IN_MOVERIGHT) ) and self.Owner:KeyDown( IN_SPEED ) then
 		if (!self.DashStartTime) then
 			self.DashStartTime = CurTime()
 		end
@@ -262,15 +267,15 @@ function SWEP:GetViewModelPosition( pos, ang )
 
 	if ( DashDelta != 0 ) then
 		local Down = ang:Up() * -1
-		local Right = ang:Right() 
+		local Right = ang:Right()
 		local Forward = ang:Forward() *2
 		pos = pos + ( Down * (self.RunArmOffset.x) + Forward * (self.RunArmOffset.y) + Right * (self.RunArmOffset.z) ) * DashDelta
 		local INERT = self.Owner:GetVelocity().z*0.1
-		local RUNPOS = math.Clamp(self.Owner:GetAimVector().z*-10, -3,0.3) 
-		local RUNPOS2 = math.Clamp(self.Owner:GetAimVector().z*-0.3, -1,0.3) 
+		local RUNPOS = math.Clamp(self.Owner:GetAimVector().z*-10, -3,0.3)
+		local RUNPOS2 = math.Clamp(self.Owner:GetAimVector().z*-0.3, -1,0.3)
 		local NEGRUNPOS = math.Clamp(self.Owner:GetAimVector().z*4, -2,2) --ErrorNoHalt(NEGRUNPOS*self.RunArmAngle.pitch)
 		local NEGRUNPOS2 = math.Clamp(self.Owner:GetAimVector().z*2, -0.5,2)
-		
+
 		if self.bInScope or self.Look == 0 then
 			ang:RotateAroundAxis( Right,self.RunArmAngle.pitch  * DashDelta)
 		elseif self.ModelRunAnglePreset	== 3 then
@@ -283,15 +288,15 @@ function SWEP:GetViewModelPosition( pos, ang )
 			ang:RotateAroundAxis( Right,self.RunArmAngle.pitch * RUNPOS )
 		end
 		ang:RotateAroundAxis( Down,  self.RunArmAngle.yaw   * DashDelta )
-		ang:RotateAroundAxis( Forward,  self.RunArmAngle.roll  * DashDelta ) 
+		ang:RotateAroundAxis( Forward,  self.RunArmAngle.roll  * DashDelta )
 		ang:RotateAroundAxis(Right, self.RunArmAngle.pitch * DashDelta)
 	end
-	
+
 	if (bIron != self.bLastIron) then
 		self.bLastIron = bIron
 		self.fIronTime = CurTime()
 	end
-	
+
 	self.BobScale =  0
 	if !self.Owner:KeyDown(IN_ATTACK2) then self.SwayScale = 1 else self.SwayScale = 0.3 end
 	local fIronTime = self.fIronTime or 0
@@ -307,9 +312,9 @@ function SWEP:GetViewModelPosition( pos, ang )
 	local Offset= self.IronSightsPos
 	local scale = math.Clamp((CurTime() - self.Recoil)*20, -5, 1 )
 	local scale2 = math.Clamp((CurTime() - self.Recoil)*10, -0, 2 )
-	
+
 	if (self.IronSightsAng) then
-		ang = ang 
+		ang = ang
 		ang:RotateAroundAxis(ang:Right(), 		self.IronSightsAng.x * Mul)
 		ang:RotateAroundAxis(ang:Up(), 		self.IronSightsAng.y * Mul )
 		ang:RotateAroundAxis(ang:Forward(), 	self.IronSightsAng.z * Mul )
@@ -318,7 +323,7 @@ function SWEP:GetViewModelPosition( pos, ang )
 	local Right 	= ang:Right()
 	local Up 		= ang:Up()
 	local Forward 	= ang:Forward()
-	
+
 	if self.RMod == 1 or self.RMod == 0 and self.Weapon:Clip1() == 0 and self.Primary.Ammo != "buckshot" then
 		pos = pos + Offset.x * Right * (Mul+(scale*self.RSlide)-self.RSlide)
 		pos = pos + Offset.y * Forward * ((Mul+(scale*self.RKick)-self.RKick)+scale2)
@@ -328,6 +333,6 @@ function SWEP:GetViewModelPosition( pos, ang )
 		pos = pos + Offset.y * Forward * Mul
 		pos = pos + Offset.z * Up * Mul
 	end
- 
-	return pos, ang	
+
+	return pos, ang
 end

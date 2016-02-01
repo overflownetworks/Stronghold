@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -12,7 +12,7 @@ if !meta then return end
 
 AccessorFuncNW( meta, "m_fMaxHealth", "MaxHealth", 0, FORCE_NUMBER )
 AccessorFuncNW( meta, "m_iTeamIndex", "TeamIndex", 0, FORCE_NUMBER )
-AccessorFuncNW( meta, "m_entOwnerEnt", "OwnerEnt", nil )
+AccessorFuncNW( meta, "m_entOwnerEnt", "OwnerEnt", nil, FORCE_ENTITY )
 AccessorFuncNW( meta, "m_strOwnerUID", "OwnerUID", "" )
 
 if !meta.oldSetHealth then
@@ -52,13 +52,13 @@ function meta:IsColliding( ent, filter )
 		{ start=Vector(mins.x,center.y,center.z), endpos=Vector(maxs.x,center.y,center.z), filter=filter, mins=hmins, maxs=hmaxs },
 		{ start=Vector(center.x,mins.y,center.z), endpos=Vector(center.x,maxs.y,center.z), filter=filter, mins=hmins, maxs=hmaxs },
 		{ start=Vector(center.x,center.y,mins.z), endpos=Vector(center.x,center.y,maxs.z), filter=filter, mins=hmins, maxs=hmaxs },
-		
+
 		{ start=mins,                         endpos=maxs,                         filter=filter, mins=hmins, maxs=hmaxs },
 		{ start=Vector(maxs.x,mins.y,maxs.z), endpos=Vector(mins.x,maxs.y,mins.z), filter=filter, mins=hmins, maxs=hmaxs },
 		{ start=Vector(mins.x,mins.y,maxs.z), endpos=Vector(maxs.x,maxs.y,mins.z), filter=filter, mins=hmins, maxs=hmaxs },
 		{ start=Vector(maxs.x,mins.y,mins.z), endpos=Vector(mins.x,maxs.y,maxs.z), filter=filter, mins=hmins, maxs=hmaxs },
 	}
-	
+
 	for _, v in ipairs(tracepositions) do
 		v.start = self:LocalToWorld( v.start )
 		v.endpos = self:LocalToWorld( v.endpos )
@@ -78,35 +78,35 @@ function meta:Dissolve()
 	dissolver:SetKeyValue( "dissolvetype", 0 )
 	dissolver:Spawn()
 	dissolver:Activate()
-	
+
 	local name = "Dissolving_"..math.random()
 	self:SetName( name )
 	dissolver:Fire( "Dissolve", name, 0 )
 	dissolver:Fire( "Kill", self, 0.10 )
-	
+
 end
 
 function meta:BuildingSolidify()
 	if !IsValid( self ) then return end
 
 	local wait = false
-	
+
 	local pos = self:LocalToWorld( self:OBBCenter() )
 	local radius_sqr = self:BoundingRadius()
 	radius_sqr = radius_sqr * radius_sqr
-	
+
 	for _, ply in ipairs(player.GetAll()) do
 		if (ply:GetPos()-pos):LengthSqr() < radius_sqr and (ply:IsColliding( self ) or self:IsColliding( ply )) then
 			wait = true
 			break
 		end
 	end
-	
+
 	if wait then
 		if IsValid( self.Owner ) then
 			self.Owner:SendMessage( "Biological obstruction, can not solidify prop!", "Prop spawn", false )
 		end
-		
+
 		timer.Simple( 1, self.BuildingSolidify, self )
 	else
 		self:SetCollisionGroup( COLLISION_GROUP_NONE )

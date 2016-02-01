@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -22,7 +22,7 @@ function GM:ReadyForInfo( ply )
 
 	local raw = file.Read( filename ) or ""
 	local tbl = glon.decode( raw ) or {}
-		
+
 	ply.Statistics = tbl.Statistics or { name = ply:GetName() }
 	ply.Items = tbl.Items or {
 		["buckshot"] = { type=3, count=1000 },
@@ -33,7 +33,7 @@ function GM:ReadyForInfo( ply )
 	}
 	ply.Loadouts = tbl.Loadouts or {}
 	ply.Licenses = tbl.Licenses
-	
+
 	-- Fix  Licenses table --
 	ply.Licenses = ply.Licenses or { [1]={weapon_sh_mp5a4=-1}, [2]={weapon_sh_p228=-1}, [5]={} }
 	if !ply.Licenses[1] then ply.Licenses[1] = {} end
@@ -42,13 +42,13 @@ function GM:ReadyForInfo( ply )
 	if !ply.Licenses[1]["weapon_sh_mp5a4"] then ply.Licenses[1]["weapon_sh_mp5a4"] = -1 end
 	if !ply.Licenses[2]["weapon_sh_p228"] then ply.Licenses[2]["weapon_sh_p228"] = -1 end
 	-------------------------
-	
+
 	ply.Money = ply.Items["money"] and ply.Items["money"].count or 0
 	ply.Items["money"] = nil
-	
+
 	SH_SendClientItems( ply )
 	SH_SendClientLoadouts( ply )
-	
+
 	-- Call donator helper function
 	--[[if ply:IsDonator() then
 		self:GiveDonatorLicenses( ply )
@@ -71,17 +71,17 @@ function GM:PlayerInitialSpawn( ply )
 	--[[for _, ply in pairs( ents.FindByClass( "Player" ) ) do
 		ply:SetBloodColor(-1)
 	end]]
-	
+
 	if ply:IsBot() then
 		ply:SetInitialized( INITSTATE_OK )
 	end
-	
+
 	ply:SetTeam( TEAM_UNASSIGNED )
 	timer.Simple( 1,
 		function( ply )
 			if !IsValid( ply ) then return end
 			SendTeamsToClient( ply )
-			
+
 			umsg.Start( "sh_advert", ply )
 				umsg.Short( (GAMEMODE.Adverts[GAMEMODE.CurrentAdvert] and GAMEMODE.Adverts[GAMEMODE.CurrentAdvert].color) or 1 )
 				local str = (GAMEMODE.Adverts[GAMEMODE.CurrentAdvert] and GAMEMODE.Adverts[GAMEMODE.CurrentAdvert].text) or ""
@@ -92,7 +92,7 @@ function GM:PlayerInitialSpawn( ply )
 			local timelimit = GAMEMODE.ConVars.TimeLimit:GetFloat()
 			if timelimit > 0 then GAMEMODE:StartCountDown( (timelimit*60)-(CurTime()-GAMEMODE.LastGameReset), "Timelimit is up in", "", "", ply ) end
 		end, ply )
-		
+
 	-- Give back spawnpoints and ammocrates
 	local steamid = ply:SteamID()
 	for _, v in ipairs(ents.FindByClass("sent_spawnpoint")) do
@@ -100,10 +100,10 @@ function GM:PlayerInitialSpawn( ply )
 			v:SetPlayer( ply )
 			v.Owner = ply
 			v.PlayerLeft = 0
-			
+
 			if !ply.SpawnPoint then ply.SpawnPoint = {} end
 			table.insert( ply.SpawnPoint, spawnpoint )
-		
+
 			ply:AddCount( "spawnpoints", spawnpoint )
 		end
 	end
@@ -114,7 +114,7 @@ end
 function GM:IsSpawnpointSuitable( ply, spawn, force )
 	local pos = spawn:GetPos()
 	local dist = (ply:GetPos() - pos):Length()
-	
+
 	local blockables = ents.FindInBox( pos + Vector(-32,-32,0), pos + Vector(32,32,72) )
 	local count = 0
 	for _, v in ipairs(blockables) do
@@ -140,12 +140,12 @@ function GM:PlayerSpawn( ply )
 	if ply:GetInitialized() != INITSTATE_OK then
 		GAMEMODE:PlayerSpawnAsSpectator( ply )
 		ply:SetTeam( 50 )
-		
+
 		timer.Simple( 30, ply.FailedInitialize, ply )
-		
+
 		return
 	end
-	
+
 	local team = ply:Team()
 	if (team == TEAM_SPECTATOR or team == TEAM_UNASSIGNED) and !ply:IsBot() then
 		GAMEMODE:PlayerSpawnAsSpectator( ply )
@@ -166,7 +166,7 @@ function GM:PlayerSpawn( ply )
 		  umsg.Short( self.GameOverWinner )
 		umsg.End()
 	end
-	
+
 	ply:Extinguish()
 
 	ply:UnSpectate()
@@ -177,10 +177,10 @@ function GM:PlayerSpawn( ply )
 	ply.spawnang = ply:GetAngles()
 	ply.ents = {}
 	GAMEMODE:SetPlayerSpeed( ply, 150, 300 )
-	
+
 	umsg.Start( "sh_spawned", ply )
 	umsg.End()
-	
+
 	local spawnprot = CONVARS.ImmuneTime:GetInt()
 	if spawnprot > 0 then
 		ply.IsGod = true
@@ -202,18 +202,18 @@ function GM:PlayerSpawn( ply )
 		  umsg.Bool( true )
 		umsg.End()
 	end
-	
+
 	ply:SetLastSpawn( CurTime() )
 	ply:CheckSpawnpoints()
-	
+
 	ply:SetViewOffset( Vector(0,0,59) )
 	ply:SetViewOffsetDucked( Vector(0,0,40) )
-	
+
 	--[[ply:EmitSound( table.Random(SND_WARPIN), math.Rand(65,75), 100 )
 	local ed = EffectData()
 	ed:SetEntity( ply )
 	util.Effect( "spawneffect", ed )]]
-	
+
 	-- Death effects cleanup
 	if IsValid( ply.DroppedWeapon ) then
 		ply.DroppedWeapon:Dissolve()
@@ -228,7 +228,7 @@ function GM:PlayerSetModel( ply )
 	if !table.HasValue( self.ValidPlayerModels, modelname ) --[[or (!ply:IsDonator() and table.HasValue( self.DonatorPlayerModels, modelname ))]] then
 		modelname = self.DefaultPlayerModel
 	end
-	
+
 	ply:SetModel( modelname )
 end
 
@@ -246,7 +246,7 @@ function GM:PlayerLoadout( ply )
 		end
 
 	end
-	
+
 	ply:StripWeapons()
 	ply:RemoveAllAmmo()
 
@@ -255,26 +255,26 @@ function GM:PlayerLoadout( ply )
 	local buckshot = math.Clamp( ply:GetItemCount("buckshot"), 0, 60 )
 	local ar2 = math.Clamp( ply:GetItemCount("ar2"), 0, 200 )
 	local rpg_round = math.Clamp( ply:GetItemCount("rpg_round"), 0, --[[ply:IsGold() and 6 || ply:IsPlatinum() and 4 ||]] 2 )
-	
+
 	ply:GiveAmmo( pistol,   "pistol",   true )
 	ply:GiveAmmo( smg1,     "smg1",     true )
 	ply:GiveAmmo( buckshot, "buckshot", true )
 	ply:GiveAmmo( ar2,      "ar2",      true )
 	ply:GiveAmmo( rpg_round,      "rpg_round",      true )
-	
+
 	ply:AddItem( "pistol", pistol*-1, 4 )
 	ply:AddItem( "smg1", smg1*-1, 4 )
 	ply:AddItem( "buckshot", buckshot*-1, 4 )
 	ply:AddItem( "ar2", ar2*-1, 4 )
 	ply:AddItem( "rpg_round", rpg_round*-1, 4 )
-	
+
 	local getprimary, getsecondary = ply:GetLoadoutPrimary(), ply:GetLoadoutSecondary()
 	local primarytime, secondarytime = ply:GetLicenseTimeLeft( 1, getprimary ), ply:GetLicenseTimeLeft( 2, getsecondary )
-	
+
 	local primary = ""
 	local secondary = ""
 	local explosive, explosive_ammo = ply:GetLoadoutExplosive() or "", 0
-	
+
 	if getprimary != "" then
 		if primarytime == -1 or primarytime > 0 then
 			primary = getprimary
@@ -283,7 +283,7 @@ function GM:PlayerLoadout( ply )
 			ply:SendMessage( "Your primary weapon's license has run out!" )
 		end
 	end
-	
+
 	if getsecondary != "" then
 		if secondarytime == -1 or secondarytime > 0 then
 			secondary = getsecondary
@@ -292,19 +292,19 @@ function GM:PlayerLoadout( ply )
 			ply:SendMessage( "Your secondary weapon's license has run out!" )
 		end
 	end
-	
+
 	if primary == "" then
 		ply:SendMessage( "No primary weapon selected, equipping default." )
 		primary = "weapon_sh_mp5a4"
 		ply:SetLoadoutPrimary( primary )
 	end
-	
+
 	if secondary == "" then
 		ply:SendMessage( "No secondary weapon selected, equipping default." )
 		secondary = "weapon_sh_p228"
 		ply:SetLoadoutSecondary( secondary )
 	end
-	
+
 	if explosive == "" then
 		--ply:SendMessage( "No explosive selected, equipping default." )
 		explosive = "weapon_sh_grenade"
@@ -334,12 +334,12 @@ function GM:PlayerLoadout( ply )
 
 	ply:Give( primary )
 	ply:SelectWeapon( primary )
-	
+
 	ply:Give( "weapon_sh_doormod" )
 	ply:Give( "weapon_sh_tool" )
-	
+
 	SH_SendClientItems( ply )
-	
+
 	ply:SetSpawnedLoadoutPrimary( primary )
 	ply:SetSpawnedLoadoutSecondary( secondary )
 	ply:SetSpawnedLoadoutExplosive( explosive )
@@ -352,18 +352,18 @@ function GM:DoPlayerDeath( ply, attacker, dmginfo )
 	ply:AddItem( "buckshot", ply:GetAmmoCount("buckshot") )
 	ply:AddItem( "ar2", ply:GetAmmoCount("ar2") )
 	ply:AddItem( "rpg_round", ply:GetAmmoCount("rpg_round") )
-	
+
 	if ply:GetSpawnedLoadoutExplosive() and IsValid( ply:GetWeapon(ply:GetSpawnedLoadoutExplosive()) ) then
 		ply:AddItem( ply:GetSpawnedLoadoutExplosive(), ply:GetAmmoCount("grenade") )
 	end
-	
+
 	SH_SendClientItems( ply )
 
 	-- Death effects
 	local wep = ply:GetActiveWeapon()
 	if IsValid( wep ) and (!wep.Primed or wep.Primed == 0) then
 		local wepfx = ents.Create( "prop_physics" )
-		
+
 		local model = wep.WorldModel or string.gsub(wep:GetModel(),"v_","w_")
 		local pos, ang
 		local attachid = ply:LookupAttachment( "anim_attachment_RH" )
@@ -375,27 +375,27 @@ function GM:DoPlayerDeath( ply, attacker, dmginfo )
 			pos = wep:GetPos()+Vector(0,0,45)+10*ply:GetForward()
 			ang = wep:GetAngles()
 		end
-		
+
 		if model == "models/weapons/w_rocket_launcher.mdl" then
 			ang:RotateAroundAxis( ang:Up(), 180 )
 		end
-		
+
 		wepfx:SetModel( model )
 		wepfx:SetPos( pos )
 		wepfx:SetAngles( ang )
-		
+
 		wepfx:Spawn()
 		wepfx:SetCollisionGroup( COLLISION_GROUP_WEAPON )
 		wepfx:SetVelocity( ply:GetVelocity() )
 		wepfx:SetHealth( 1000 )
 		wepfx:SetMaxHealth( 1000 )
-		
+
 		ply.DroppedWeapon = wepfx
 		timer.Simple( 30, function(wepfx) if IsValid(wepfx) then wepfx:Dissolve() end end, wepfx )
 
 	end
 	ply:CreateServerSideRagdoll()
-	ply:AddDeaths( 1 ) 
+	ply:AddDeaths( 1 )
 	if IsValid( attacker ) and attacker:IsPlayer() and ply != attacker then
 		attacker:AddFrags( 1 )
 	end
@@ -405,19 +405,19 @@ local LastKilled = false
 function GM:PlayerDeath( ply, inflictor, killer )
 
 	self.BaseClass:PlayerDeath( ply, inflictor, killer )
-	
+
 	umsg.Start( "sh_killed", ply )
 		umsg.Entity( killer )
 	umsg.End()
-	
+
 	ply:AddStatistic( "deaths", 1 )
 	ply:SetMultiplier( 0 )
-	
+
 	local livedfor = CurTime() - (tonumber( ply:GetLastSpawn() ) or 0)
 	if livedfor > ply:GetStatistic( "longestalive", 0 ) then
 		ply:SetStatistic( "longestalive", livedfor )
 	end
-	
+
 	if IsValid( killer ) and killer:IsPlayer() and ply != killer and LastKiller != killer or IsValid( killer ) and killer:IsPlayer() and ply != killer and LastKilled != ply then
 		killer:AddStatistic( "kills", 1 )
 		if killer:Alive() then
@@ -426,20 +426,20 @@ function GM:PlayerDeath( ply, inflictor, killer )
 			LastKiller = killer
 			LastKilled = ply
 			print(killer)
-			
+
 			local amt = CONVARS.GBuxMPK:GetFloat()
 			killer:AddMoney( amt )
 			killer:AddStatistic( "gbuxmoneyearned", amt )
-			
+
 			if killer:GetMultiplier() > killer:GetStatistic( "gbuxhighestmul", 0 ) then
 				killer:SetStatistic( "gbuxhighestmul", killer:GetMultiplier() )
 			end
 		end
 	end
-	
+
 	timer.Remove( "Suicide_"..ply:EntIndex() )
 	ply.Suiciding = false
-	
+
 	ply:SetDSP( 0 )
 	return true
 end
@@ -449,11 +449,11 @@ function GM:PlayerDeathThink( ply )
 	if (  ply.NextSpawnTime && ply.NextSpawnTime > CurTime() - 4 ) then return end
 
 	if ( ply:KeyPressed( IN_ATTACK ) || ply:KeyPressed( IN_ATTACK2 ) || ply:KeyPressed( IN_JUMP ) ) then
-	
+
 		ply:Spawn()
-		
+
 	end
-	
+
 end
 
 function GM:CanPlayerSuicide( ply )
@@ -470,31 +470,32 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 	return true
 end
 
-function GM:PlayerConnect( name, address ) 
+function GM:PlayerConnect( name, address )
     for _, ply in ipairs(player.GetAll()) do
+		if ply:IsBot() then break end
 		local ostime = os.time()
 		local primaries = ply:GetLicenses( 1 )
 		local secondaries = ply:GetLicenses( 2 )
 		local hats = ply:GetLicenses( 5 )
-		
+
 		for class, time_when_over in pairs(primaries) do
 			if time_when_over != -1 and time_when_over - ostime <= 0 then
 				ply:RemoveLicense( 1, class )
 			end
 		end
-		
+
 		for class, time_when_over in pairs(secondaries) do
 			if time_when_over != -1 and time_when_over - ostime <= 0 then
 				ply:RemoveLicense( 2, class )
 			end
 		end
-		
+
 		for class, time_when_over in pairs(hats) do
 			if time_when_over != -1 and time_when_over - ostime <= 0 then
 				ply:RemoveLicense( 5, class )
 			end
 		end
-		
+
 		SH_SendClientLicenses( ply )
 	end
 end
@@ -518,7 +519,7 @@ function GM:PlayerCanHearPlayersVoice( ply, other )
 	local channel_other = other:GetInfoNum( "sh_voice_channel", 1 )
 	local alwayspublic = ply:GetInfoNum( "sh_voice_alwayshearpublic", 0 )
 	local alwaysteam = ply:GetInfoNum( "sh_voice_alwayshearteam", 0 )
-	
+
 	if (channel == 1 and channel_other == 1 and ply:Team() == other:Team()) or channel == 0 and channel_other == 0 then
 		return true
 	elseif channel_other == 0 and channel == 1 and alwayspublic == 1 then
@@ -526,7 +527,7 @@ function GM:PlayerCanHearPlayersVoice( ply, other )
 	elseif channel_other == 1 and channel == 0 and alwaysteam == 1 and ply:Team() == other:Team() then
 		return true
 	end
-	
+
 	return false
 end
 
@@ -538,7 +539,7 @@ end
 
 function GM:ScalePlayerDamage( ply, hitgroup, dmginfo, dont_ignore )
 	local original = dmginfo:GetDamage()
-	
+
 	if hitgroup == HITGROUP_HEAD then
 		dmginfo:ScaleDamage( 10 )
 	end
@@ -558,7 +559,7 @@ function GM:ScalePlayerDamage( ply, hitgroup, dmginfo, dont_ignore )
 			hitgroup == HITGROUP_GEAR then
 		dmginfo:ScaleDamage( 3 )
 	end
-	
+
 	-- WHY ORIGINAL ADDED?!
 	dmginfo:SetDamage( dmginfo:GetDamage()-original )
 end

@@ -24,7 +24,7 @@ local type = type
 local string = string
 local math = math
 local tostring = tostring
-local ValidEntity = ValidEntity
+local IsValid = IsValid
 local error = error
 local print = print
 local setmetatable = setmetatable
@@ -94,13 +94,13 @@ encode_types = {
 		return o.p.."\1"..o.y.."\1"..o.r.."\1"
 	end},
 	Entity = {10, function(o)
-		return (ValidEntity(o) and o:EntIndex() or -1).."\1"
+		return (IsValid(o) and o:EntIndex() or -1).."\1"
 	end},
 	NPC = {10, function(o)
-		return (ValidEntity(o) and o:EntIndex() or -1).."\1"
+		return (IsValid(o) and o:EntIndex() or -1).."\1"
 	end},
 	Weapon = {10, function(o)
-		return (ValidEntity(o) and o:EntIndex() or -1).."\1"
+		return (IsValid(o) and o:EntIndex() or -1).."\1"
 	end},
 	Player = {11, function(o)
 		return o:EntIndex().."\1"

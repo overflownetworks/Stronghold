@@ -1,6 +1,5 @@
 if (SERVER) then
 	AddCSLuaFile("shared.lua")
-	AddCSLuaFile("cl_init.lua")
 
 elseif (CLIENT) then
 	SWEP.PrintName 			= "SIG SG-552"
@@ -11,7 +10,7 @@ elseif (CLIENT) then
 end
 
 
-SWEP.MuzzleAttachment		= "1" 
+SWEP.MuzzleAttachment		= "1"
 SWEP.Base 					= "weapon_sh_base"
 SWEP.Spawnable 				= true
 SWEP.AdminSpawnable 		= true
@@ -26,7 +25,7 @@ SWEP.Primary.Delay 			= 0.08
 SWEP.Primary.DefaultClip 	= 30
 SWEP.Primary.Automatic 		= true
 SWEP.Primary.Ammo 			= "ar2"
-SWEP.IronSightZoom			= 2 -- How much the player's FOV should zoom in ironsight mode. 
+SWEP.IronSightZoom			= 2 -- How much the player's FOV should zoom in ironsight mode.
 SWEP.UseScope				= true -- Use a scope instead of iron sights.
 SWEP.DrawParabolicSights	= true -- Set to true to draw a cool parabolic sight (helps with aiming over long distances)
 SWEP.Acog					= true

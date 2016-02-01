@@ -2,19 +2,18 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
 
 include( "glon.lua" ) -- This is manually added to prevent a Linux issue because Garry...
-require( "datastream" )
 
 --[[-------------------------------------------------------
-  
+
   STRONGHOLD
-  
+
 ---------------------------------------------------------]]
 
 include( "shared.lua" )
@@ -85,7 +84,7 @@ concommand.Add( "gamemode_reinitialize_cl", GM.Reinitialize )
 
 function GM:Think()
 	local curtime = CurTime()
-	
+
 	-- Ragdolls
 		for i, tbl in ipairs(GAMEMODE.Ragdolls) do
 			if IsValid( tbl.ent ) then
@@ -117,7 +116,7 @@ function GM:Think()
 			RunString( lua_to_run )
 		end
 	end
-	
+
 	self:ScreenEffectsThink()
 	self:HatEffectsThink()
 end
@@ -133,7 +132,7 @@ function GM:OnUndo( name, strCustomString )
 	Msg( name.." undone\n" )
 	if !strCustomString then
 		chat.AddText( Color(200,200,50,255), "#Undone_"..name )
-	else	
+	else
 		chat.AddText( Color(200,200,50,255), strCustomString )
 	end
 	surface.PlaySound( "buttons/button15.wav" )
@@ -162,189 +161,209 @@ end
 usermessage.Hook( "sh_spawned", LocalPlayer_Spawned )
 
 -- Overly complex camera calculations
-local WalkTimer = 0
-local VelSmooth = 0
-local LastStrafeRoll = 0
-local BreathSmooth = 0
-local BreathTimer = 0
-local LastCalcView = 0
-local LastOrigin = nil
-local ZSmoothOn = false -- Experimental
+local WalkTimer 		= 0
+local VelSmooth 		= 0
+local LastStrafeRoll 	= 0
+local BreathSmooth 		= 0
+local BreathTimer 		= 0
+local LastCalcView 		= 0
+local LastOrigin 		= nil
+local ZSmoothOn 		= false -- Experimental
 function GM:CalcView( ply, origin, angles, fov )
 	if self.GameOver then
-		return self.BaseClass:CalcView( ply, origin, angles, fov )
+		return self.BaseClass:CalcView( ply, origin + Vector(0,0,36), angles, fov )
 	end
 
-	local deltatime = CurTime() - LastCalcView
-	LastCalcView = CurTime()
+	--local deltatime = CurTime() -LastCalcView
+	--LastCalcView 	= CurTime()
 
 	-- Experimental ZSmooth
-	LastOrigin = LastOrigin or origin
-	local dist = math.abs( origin.z - LastOrigin.z )
+	--[[LastOrigin = LastOrigin or origin
+	local dist = math.abs( origin.z -LastOrigin.z )
+
 	if dist >= 1.5 then
 		ZSmoothOn = true
 	end
+
 	if ZSmoothOn then
-		local newz = math.Approach( LastOrigin.z, origin.z, dist*15*deltatime )
-		if math.abs( newz - origin.z ) < 0.10 or !ply:IsOnGround() then
+		local newz = math.Approach( LastOrigin.z, origin.z, dist *15 *deltatime )
+
+		if math.abs( newz -origin.z ) < 0.10 or not ply:IsOnGround() then
 			ZSmoothOn = false
 		else
 			origin.z = newz
 		end
 	end
-	LastOrigin = origin
 
-	if !ply:Alive() and IsValid( GAMEMODE.KillCam.Killer ) and GAMEMODE.KillCam.Killer != ply then
+	LastOrigin = origin]]
+
+	if not ply:Alive() and IsValid( GAMEMODE.KillCam.Killer ) and GAMEMODE.KillCam.Killer ~= ply then
 		if GAMEMODE.KillCam.Active then
-			GAMEMODE.KillCam.StopTime = CurTime()
-			GAMEMODE.KillCam.Pos = GAMEMODE.KillCam.Killer:LocalToWorld(GAMEMODE.KillCam.Killer:OBBCenter())+Vector(0,0,16)
+			GAMEMODE.KillCam.StopTime 	= CurTime()
+			GAMEMODE.KillCam.Pos 		= GAMEMODE.KillCam.Killer:LocalToWorld( GAMEMODE.KillCam.Killer:OBBCenter() ) +Vector(0, 0, 16)
 		end
-		origin = ply:EyePos()
-		angles = (GAMEMODE.KillCam.Pos-ply:EyePos()):Angle()
-		fov = math.Max( 25, fov-((GAMEMODE.KillCam.StopTime-GAMEMODE.KillCam.LastKilled) * 10) )
-		local tr = util.TraceLine( {start=origin,endpos=GAMEMODE.KillCam.Pos,filter=ply} )
-		if tr.Entity != GAMEMODE.KillCam.Killer and tr.HitWorld then GAMEMODE.KillCam.Active = false end
+
+		--origin 		= ply:EyePos()
+		angles 		= ( GAMEMODE.KillCam.Pos -ply:EyePos() ):Angle()
+		fov 		= math.Max( 25, fov -((GAMEMODE.KillCam.StopTime-GAMEMODE.KillCam.LastKilled) *10) )
+		local tr 	= util.TraceLine{start = origin, endpos = GAMEMODE.KillCam.Pos, filter = ply }
+
+		if tr.Entity ~= GAMEMODE.KillCam.Killer and tr.HitWorld then
+			GAMEMODE.KillCam.Active = false
+		end
+
 		return self.BaseClass:CalcView( ply, origin, angles, fov )
-	elseif !ply:Alive() or IsValid( ply:GetVehicle() ) then
+	elseif not ply:Alive() or IsValid( ply:GetVehicle() ) then
 		return self.BaseClass:CalcView( ply, origin, angles, fov )
 	end
 
-	local vel = (ply:OnGround() and ply:GetVelocity() or Vector(1,1,1))
-	local speed = vel:Length()
-	local onground = 1
-	local ang = ply:EyeAngles()
-	local bob = Vector( 10, 10, 10 )	
+	local vel 		= (ply:OnGround() and ply:GetVelocity() or Vector(1, 1, 1))
+	local speed 	= vel:Length()
+	local onground 	= 1
+	local ang 		= ply:EyeAngles()
+	local bob 		= Vector(10, 10, 10)
 
-	VelSmooth = (math.Clamp(VelSmooth * 0.9 + speed * 0.07, 0, 700 ))
-	WalkTimer = (ply:OnGround() and (WalkTimer + VelSmooth * FrameTime() * 0.04) or (WalkTimer + VelSmooth * FrameTime() * 0.001))
-	
-	BreathSmooth = math.Clamp( BreathSmooth * 0.9 + bob:Length() * 0.07, 0, 700 )
-	BreathTimer = BreathTimer + BreathSmooth * FrameTime() * 0.04
+	VelSmooth = (math.Clamp(VelSmooth *0.9 +speed *0.07, 0, 700 ))
+	WalkTimer = (ply:OnGround() and (WalkTimer +VelSmooth *FrameTime() *0.04) or (WalkTimer +VelSmooth *FrameTime() *0.001))
 
+	BreathSmooth = math.Clamp( BreathSmooth *0.9 +bob:Length() *0.07, 0, 700 )
+
+	BreathTimer = !ply.Sighted and BreathTimer +BreathSmooth *FrameTime() *0.04 or ply.Sighted and 0
 	-- Roll on strafe (smoothed)
-	LastStrafeRoll = (LastStrafeRoll * 3) + (ang:Right():DotProduct( vel ) * 0.0001 * VelSmooth * 0.3 ) // 0.3
-	LastStrafeRoll = LastStrafeRoll * 0.18 // Change this
-	angles.roll = angles.roll + LastStrafeRoll
-	
-	if ply:GetGroundEntity() != NULL then	
-		angles.roll = angles.roll + math.sin( BreathTimer*0 ) * BreathSmooth * 0.00000003 * BreathSmooth
-		angles.pitch = angles.pitch + math.cos( BreathTimer*3.5 ) * BreathSmooth*0.001 *ply:GetFOV()*0.006* BreathSmooth
-		angles.yaw = angles.yaw + math.cos( BreathTimer*5 ) * BreathSmooth*0.0005 *ply:GetFOV()*0.006* BreathSmooth
-	end
-		
-	local shakespeed = 0
-	local shakespeed2 = 0
-	local violencescale = 0 
-	local violencescale2 = 0 
+	LastStrafeRoll = (LastStrafeRoll *3) +(ang:Right():DotProduct( vel ) *0.0001 *VelSmooth *0.3 )
+	LastStrafeRoll = LastStrafeRoll *0.18 -- Change this
+	angles.roll = angles.roll +LastStrafeRoll
 
-	if running then 
-	shakespeed = 1.5
-	shakespeed2 = 6
-	violencescale = 0.01
-	violencescale2 = 0.1
-	end
-	
-	if !running then
-	shakespeed = 1.2
-	shakespeed2 = 2.2
-	violencescale = 0.5
-	violencescale2 = 0.2
+	if ply:GetGroundEntity() != NULL then
+		angles.roll 	= angles.roll +math.sin( BreathTimer *0 ) *BreathSmooth *0.00000003 *BreathSmooth
+		angles.pitch 	= angles.pitch +math.cos( BreathTimer *3.5 ) *BreathSmooth *0.001 *ply:GetFOV() *0.006 *BreathSmooth
+		angles.yaw 		= angles.yaw +math.cos( BreathTimer *5 ) *BreathSmooth *0.0005 *ply:GetFOV() *0.006 *BreathSmooth
 	end
 
+	local shakespeed, shakespeed2, violencescale, violencescale2
 
-	if ply:GetGroundEntity() != NULL then	
-			angles.roll = angles.roll + math.sin( WalkTimer*shakespeed ) * VelSmooth * (0.00003*violencescale2) * VelSmooth
-			angles.pitch = angles.pitch + math.cos( WalkTimer*shakespeed2 ) * VelSmooth * (0.000012*violencescale) * VelSmooth
-			angles.yaw = angles.yaw + math.cos( WalkTimer*shakespeed ) * VelSmooth * (0.000003*violencescale) * VelSmooth
+	if running then
+		shakespeed 		= 1.5
+		shakespeed2 	= 6
+		violencescale 	= 0.01
+		violencescale2 	= 0.1
+	else
+		shakespeed 		= 1.2
+		shakespeed2 	= 2.2
+		violencescale 	= 0.5
+		violencescale2 	= 0.2
 	end
 
+	if ply:GetGroundEntity() ~= NULL then
+		angles.roll 	= angles.roll +math.sin( WalkTimer *shakespeed ) *VelSmooth *(0.00003 *violencescale2) *VelSmooth
+		angles.pitch 	= angles.pitch +math.cos( WalkTimer *shakespeed2 ) *VelSmooth *(0.000012 *violencescale) *VelSmooth
+		angles.yaw 	 	= angles.yaw +math.cos( WalkTimer *shakespeed ) *VelSmooth *(0.000003 *violencescale) *VelSmooth
+	end
+	if !ply.DashDelta then ply.DashDelta = 0 end
+	local RUNPOS 	= math.Clamp( ply:GetAimVector().z *30, -30, 50 )*ply.DashDelta
+	local NEGRUNPOS = math.Clamp( ply:GetAimVector().z *-30, -30, 20 )*ply.DashDelta
 
-	local RUNPOS = math.Clamp(ply:GetAimVector().z*30, -20,50)
-	local NEGRUNPOS = math.Clamp(ply:GetAimVector().z*-30, -20,0)
-	local ret = self.BaseClass:CalcView( ply, origin, angles, fov )
-	local running = ply:KeyDown(IN_SPEED) and ply:KeyDown(IN_FORWARD|IN_BACK|IN_MOVELEFT|IN_MOVERIGHT) 	
-	local scale = ((running and 3 or 1) * 0.01)
-	local wep = ply:GetActiveWeapon()
+	local ret 		= self.BaseClass:CalcView( ply, origin, angles, fov )
+	local running 	= ply:KeyDown( IN_SPEED ) and ply:KeyDown( bit.bor(IN_FORWARD,IN_BACK,IN_MOVELEFT,IN_MOVERIGHT) )
+	local scale 	= (running and 3 or 1) *0.01
+	local wep 		= ply:GetActiveWeapon()
+	--ply.LastAngles = vm_angles.yaw
+	--ply.Output = ply.JerkStop
+	return ret
+end
 
-	if ret.vm_angles and !running then
-		ret.vm_angles.roll = ret.vm_angles.roll + math.sin( BreathTimer*0 ) * BreathSmooth * 0.00000003 * BreathSmooth
-		ret.vm_angles.pitch = ret.vm_angles.pitch + math.cos( BreathTimer*3.5 ) * BreathSmooth*-0.001 *ply:GetFOV()*0.006* BreathSmooth
-		ret.vm_angles.yaw = ret.vm_angles.yaw + math.cos( BreathTimer*5 ) * BreathSmooth*0.0005 *ply:GetFOV()*0.006* BreathSmooth
+function GM:CalcViewModelView( Weapon, ViewModel, OldEyePos, OldEyeAng, EyePos, EyeAng )
 
-	elseif ret.vm_angles and running then
-	
-		if	IsValid( wep ) and wep.ModelRunAnglePreset == 1 then
-			ret.vm_angles.roll = ret.vm_angles.roll + math.sin( WalkTimer*2.2 ) * 0.02 * VelSmooth - NEGRUNPOS
-			ret.vm_angles.pitch = ret.vm_angles.pitch + math.cos( WalkTimer*1 ) * 0.006 * VelSmooth
-			ret.vm_angles.yaw = ret.vm_angles.yaw + math.cos( WalkTimer*.99 ) * 0.05 * VelSmooth
-		
+	if ( !IsValid( Weapon ) ) then return end
+
+	local vm_origin, vm_angles = EyePos, EyeAng
+
+	-- Controls the position of all viewmodels
+	local func = Weapon.GetViewModelPosition
+	if ( func ) then
+		local pos, ang = func( Weapon, EyePos*1, EyeAng*1 )
+		vm_origin = pos or vm_origin
+		vm_angles = ang or vm_angles
+	end
+
+	-- Controls the position of individual viewmodels
+	func = Weapon.CalcViewModelView
+	if ( func ) then
+		local pos, ang = func( Weapon, ViewModel, OldEyePos*1, OldEyeAng*1, EyePos*1, EyeAng*1 )
+		vm_origin = pos or vm_origin
+		vm_angles = ang or vm_angles
+	end
+
+	local ply = LocalPlayer()
+
+	local vel 		= (ply:OnGround() and ply:GetVelocity() or Vector(1, 1, 1))
+	local speed 	= vel:Length()
+	local onground 	= 1
+	local ang 		= ply:EyeAngles()
+	local bob 		= Vector(10, 10, 10)
+		local running 	= ply:KeyDown( IN_SPEED ) and ply:KeyDown( bit.bor(IN_FORWARD,IN_BACK,IN_MOVELEFT,IN_MOVERIGHT) )
+	local scale 	= (running and 3 or 1) *0.01
+	local wep 		= ply:GetActiveWeapon()
+
+	WalkTimer = (ply:OnGround() and (WalkTimer +VelSmooth *FrameTime() *0.001) or (WalkTimer +VelSmooth *FrameTime() *0.001))
+	VelSmooth = (math.Clamp(VelSmooth *0.9 +speed *0.07, 0, 700 ))
+	local RUNPOS 	= math.Clamp( ply:GetAimVector().z *30, -30, 50 )*ply.DashDelta
+	local NEGRUNPOS = math.Clamp( ply:GetAimVector().z *-30, -30, 20 )*ply.DashDelta
+	if vm_angles then
+		vm_angles.roll 	= vm_angles.roll +math.sin( BreathTimer *0 ) *BreathSmooth *0.00000003 *BreathSmooth
+		vm_angles.pitch = vm_angles.pitch +math.cos( BreathTimer *3.5 ) *BreathSmooth *-0.001 *ply:GetFOV() *0.006 *BreathSmooth
+		vm_angles.yaw = vm_angles.yaw +math.cos( BreathTimer *5 ) *BreathSmooth *0.0005 *ply:GetFOV() *0.006 *BreathSmooth
+		if IsValid( wep ) and wep.ModelRunAnglePreset == 1 then
+			vm_angles.roll 	= vm_angles.roll +math.sin( WalkTimer *2.2 ) *0.02 *VelSmooth*ply.DashDelta -NEGRUNPOS
+			vm_angles.pitch = vm_angles.pitch +math.cos( WalkTimer *1 ) *0.006 *VelSmooth*ply.DashDelta
+			vm_angles.yaw 	= vm_angles.yaw +math.cos( WalkTimer *.99 ) *0.05 *VelSmooth*ply.DashDelta
 		elseif IsValid( wep ) and wep.ModelRunAnglePreset == 0  then
-	
-			ret.vm_angles.roll = ret.vm_angles.roll + math.sin( WalkTimer*2.2 ) * 0.02 * VelSmooth - RUNPOS
-			ret.vm_angles.pitch = ret.vm_angles.pitch + math.cos( WalkTimer*1 ) * 0.006 * VelSmooth
-			ret.vm_angles.yaw = ret.vm_angles.yaw + math.cos( WalkTimer*.99 ) * 0.05 * VelSmooth
-			
+			vm_angles.roll 	= vm_angles.roll +math.sin( WalkTimer *2.2 ) *0.02 *VelSmooth*ply.DashDelta -RUNPOS
+			vm_angles.pitch = vm_angles.pitch +math.cos( WalkTimer *1 ) *0.006 *VelSmooth*ply.DashDelta
+			vm_angles.yaw 	= vm_angles.yaw +math.cos( WalkTimer *.99 ) *0.05 *VelSmooth*ply.DashDelta
 		elseif IsValid( wep ) and wep.ModelRunAnglePreset == 2 then
-	
-			ret.vm_angles.roll = ret.vm_angles.roll + math.sin( WalkTimer*2.2 ) * 0.02 * VelSmooth - RUNPOS
-			ret.vm_angles.pitch = ret.vm_angles.pitch + math.cos( WalkTimer*1 ) * 0.006 * VelSmooth
-			ret.vm_angles.yaw = ret.vm_angles.yaw + math.cos( WalkTimer*.99 ) * 0.05 * VelSmooth
+			vm_angles.roll 	= vm_angles.roll +math.sin( WalkTimer *2.2 ) *0.02 *VelSmooth*ply.DashDelta -RUNPOS
+			vm_angles.pitch = vm_angles.pitch +math.cos( WalkTimer *1 ) *0.006 *VelSmooth*ply.DashDelta
+			vm_angles.yaw 	= vm_angles.yaw +math.cos( WalkTimer *.99 ) *0.05 *VelSmooth*ply.DashDelta
 		end
 	end
-	
-	local left = ply:GetRight() * -1
-	local up = ang:Up()
-	
-	--Tool
-	if IsValid( wep ) 
-	and wep.ModelRunAnglePreset == 5 
-	and !running then
-	
-	ret.vm_origin = ret.vm_origin + (math.sin( WalkTimer*1.8 ) * VelSmooth * 0.0025) * left + ((math.cos( WalkTimer*3.6 ) * VelSmooth * 1) * 0.001) * up
-	end
-	
-	if IsValid( wep ) 
-	and wep.ModelRunAnglePreset == 5 
-	and running then
-	
-	ret.vm_origin = ret.vm_origin + (math.sin( WalkTimer*1 ) * VelSmooth * 0.005) * left + ((math.cos( WalkTimer*2 ) * VelSmooth * 0.001)) * up
-	end
-	
-	--Weapons
-	if ret.vm_origin 
-	and wep.ModelRunAnglePreset != 5 
-	and !running 
-	and !ply:KeyDown(IN_ATTACK2) 
-	or ply:KeyDown(IN_USE) and ply:KeyDown(IN_ATTACK2) and wep.ModelRunAnglePreset != 5 and !running 
-	and !wep:GetIronsights() then
-	
-		ret.vm_origin = ret.vm_origin + (math.sin( WalkTimer*1.8 ) * VelSmooth * 0.0025) * left + ((math.cos( WalkTimer*3.6 ) * VelSmooth * 1) * 0.001) * up
-	end
-	
-	if ret.vm_origin 
-	and wep.ModelRunAnglePreset != 5
-	and !running 
-	and wep:GetIronsights() then
-	
-		ret.vm_origin = ret.vm_origin + (math.sin( WalkTimer*1.8 ) * VelSmooth * 0.0002) * left + ((math.cos( WalkTimer*3.6 ) * VelSmooth * 1) * 0.0001) * up
-	end
-	
-	if ret.vm_origin 
-	and wep.ModelRunAnglePreset != 5 
-	and running and IsValid( wep ) 
-	and wep.ModelRunAnglePreset == 3 then
-	
-		ret.vm_origin = ret.vm_origin + (math.sin( WalkTimer*1 ) * VelSmooth * 0.005) * left + ((math.cos( WalkTimer*2 ) * VelSmooth * 0.001)) * up
-	end
 
+	if vm_origin then
+		local left = ply:GetRight() *-1
+		local up = ang:Up()
 
-	return ret
+		--Tool
+		if IsValid( wep ) and wep.ModelRunAnglePreset == 5 and not running then
+			vm_origin = vm_origin +(math.sin( WalkTimer *1.8 ) *VelSmooth *0.0025) *left +((math.cos( WalkTimer *3.6 ) *VelSmooth *1) *0.001) *up
+		end
+
+		if IsValid( wep ) and wep.ModelRunAnglePreset == 5 and running then
+			vm_origin = vm_origin +(math.sin( WalkTimer *1 ) *VelSmooth *0.005) *left +((math.cos( WalkTimer *2 ) *VelSmooth *0.001)) *up
+		end
+
+		--Weapons
+		if wep.ModelRunAnglePreset ~= 5 and not running and not ply:KeyDown( IN_ATTACK2 ) --fucking hell whyyyyyy --why what?
+		or ply:KeyDown( IN_USE ) and ply:KeyDown( IN_ATTACK2 ) and wep.ModelRunAnglePreset ~= 5 and not running and not ply.Sighted then
+			vm_origin = vm_origin +(math.sin( WalkTimer *1.8 ) *VelSmooth *0.0025) *left +((math.cos( WalkTimer *3.6 ) *VelSmooth *1) *0.001) *up
+		end
+
+		if wep.ModelRunAnglePreset ~= 5 and not running and ply.Sighted then
+			vm_origin = vm_origin +(math.sin( WalkTimer *1.8 ) *VelSmooth *0.0002) *left +((math.cos( WalkTimer *3.6 ) *VelSmooth *1) *0.0001) *up
+		end
+
+		if wep.ModelRunAnglePreset ~= 5 and running and IsValid( wep ) and wep.ModelRunAnglePreset == 3 then
+			vm_origin = vm_origin +(math.sin( WalkTimer *1 ) *VelSmooth *0.005) *left +((math.cos( WalkTimer *2 ) *VelSmooth *0.001)) *up
+		end
+	end
+	--print(vm_origin)
+	return vm_origin, vm_angles
+
 end
 
 local LastDuckRelease = 0
 local LastDuckState = false
 function GM:CreateMove( cmd )
-	local ducking = cmd:GetButtons() & IN_DUCK == IN_DUCK
+	local ducking = bit.band(cmd:GetButtons(), IN_DUCK) == IN_DUCK
 	if ducking and RealTime() - LastDuckRelease <= 0.30 then
 		cmd:SetButtons( cmd:GetButtons() - IN_DUCK )
 	elseif !ducking and LastDuckState then
@@ -354,7 +373,7 @@ function GM:CreateMove( cmd )
 end
 
 local SND_CHANNELCHANGE = Sound( "buttons/lightswitch2.wav" )
-function GM:PlayerBindPress( ply, bind, pressed ) 
+function GM:PlayerBindPress( ply, bind, pressed )
 	if string.find( string.lower(bind), "+menu_context" ) != nil or string.find( string.lower(bind), "noclip" ) != nil then
 		ply:EmitSound( SND_CHANNELCHANGE, 70, 100 )
 		RunConsoleCommand( "sh_voice_channel", self.ConVars.VoiceChannel:GetInt() == 0 and 1 or 0 )
@@ -377,15 +396,15 @@ local function RecieveGameOver()
 end
 usermessage.Hook( "sh_gameover", RecieveGameOver )
 
-local function RecieveMapList( _, _, _, decoded )
-	GAMEMODE.MapList = decoded
+
+net.Receive("sh_maplist", function()
+	GAMEMODE.MapList = net.ReadTable()
 	for k, v in pairs(GAMEMODE.MapList) do
 		if file.Exists( "../materials/maps/"..v.map..".vmt" ) then
 			GAMEMODE.MapList[k].texture = surface.GetTextureID( "maps/"..v.map )
 		end
 	end
-end
-datastream.Hook( "sh_maplist", RecieveMapList )
+end)
 
 local function RecieveWinningMap( um )
 	GAMEMODE.WinningMap = um:ReadString()

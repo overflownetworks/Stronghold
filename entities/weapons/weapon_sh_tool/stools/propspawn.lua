@@ -51,47 +51,47 @@ function TOOL:LeftClick( trace )
 
 	local ply = self:GetOwner()
 	local model = self:GetClientInfo( "model" )
-	
+
 	if --[[!trace.Hit or]] !gamemode.Call( "PlayerSpawnProp", ply, model ) then return false end
-	
+
 	local ent = ents.Create( "prop_physics" )
 	if IsValid( ent ) then
 		ent:SetModel( model )
 		ent:Spawn()
 		ent.Owner = ply
-		
+
 		local physobj = ent:GetPhysicsObject()
 		if IsValid( physobj ) then
 			physobj:Wake()
 			physobj:EnableMotion( false )
 		end
-		
+
 		FixInvalidPhysicsObject( ent )
-		
+
 		local TargetAngle
 		local TargetPos
 		local AngleOffset = GAMEMODE.SpawnAngleOffset[model] or Angle( 0, 0, 0 )
 		local PosOffset = GAMEMODE.SpawnPositionOffset[model] or 0
-		
+
 		local snapdegrees = self:GetClientNumber( "snapdegrees", 45 )
 		TargetAngle = Angle( self:GetClientNumber("pitch",0), self:GetClientNumber("yaw",0), self:GetClientNumber("roll",0) ) + Angle( 0, ply:GetAngles().y, 0 )
-		
+
 		TargetAngle:RotateAroundAxis( TargetAngle:Right(), AngleOffset.p )
 		TargetAngle:RotateAroundAxis( TargetAngle:Up(), AngleOffset.y )
 		TargetAngle:RotateAroundAxis( TargetAngle:Forward(), AngleOffset.r )
-		
+
 		if ply:KeyDown( IN_SPEED ) --[[self.LOCKED_TO_WORLD]] --[[ply:KeyDown( IN_USE ) and ply:KeyDown( IN_SPEED )]] then
 			TargetAngle = angnorm( TargetAngle )
 			TargetAngle.p = round( TargetAngle.p, snapdegrees, 360 )
 			TargetAngle.y = round( TargetAngle.y, snapdegrees, 360 )
 			TargetAngle.r = round( TargetAngle.r, snapdegrees, 360 )
 		end
-		
+
 		TargetPos = trace.HitPos
 		if self.TRACE.Hit and math.abs(self.TRACE.HitNormal.z) > 0.7 then
 			TargetPos = TargetPos - PosOffset * TargetAngle:Forward()
 		end
-		
+
 		local mins, maxs, center = ent:OBBMins(), ent:OBBMaxs(), ent:OBBCenter()
 		if math.abs(trace.HitNormal.z) > 0.7 then
 			if trace.HitNormal.z > 0 then
@@ -102,15 +102,15 @@ function TOOL:LeftClick( trace )
 		else
 			TargetPos = TargetPos - (TargetAngle:Forward()*center.x + TargetAngle:Right()*center.y + TargetAngle:Up()*center.z)
 		end
-		
+
 		ent:SetPos( TargetPos )
 		ent:SetAngles( TargetAngle )
-		
+
 		local physobj = ent:GetPhysicsObject()
 		if IsValid( physobj ) then physobj:EnableMotion( false ) end
 		ent:SetMoveType( MOVETYPE_NONE )
 		ent:SetCollisionGroup( COLLISION_GROUP_WEAPON )
-		
+
 		for _, v in ipairs(ents.FindInSphere(ent:LocalToWorld(ent:OBBCenter(v)),ent:BoundingRadius())) do
 			if v:IsPlayer() then
 				if v:IsPlayer() and v:IsColliding( ent ) or ent:IsColliding( v ) then
@@ -120,7 +120,7 @@ function TOOL:LeftClick( trace )
 				end
 			end
 		end
-		
+
 		for _, v in ipairs(GAMEMODE.SpawnPoints) do
 			if PlayerHullIsColliding( v:GetPos(), false, ent ) then
 				ply:SendMessage( "Unknown obstruction detected!", "Prop spawn", false )
@@ -128,14 +128,14 @@ function TOOL:LeftClick( trace )
 				break
 			end
 		end
-		
+
 		ent.BuildTime = 1
 		ent.CanRepair = true
 		for _, v in ipairs(ents.FindInSphere(ent:GetPos(),200)) do
 
-			if v:GetClass() == "prop_physics" and ValidEntity( v.Owner ) and (ent.Owner != v.Owner) || v:GetClass() == "sent_spawnpoint" and ValidEntity( v.Owner ) and (ent.Owner != v.Owner) then
-				if v.Owner:Team() != ent.Owner:Team() or (v.Owner:Team() == 50) then 
-					
+			if v:GetClass() == "prop_physics" and IsValid( v.Owner ) and (ent.Owner != v.Owner) || v:GetClass() == "sent_spawnpoint" and IsValid( v.Owner ) and (ent.Owner != v.Owner) then
+				if v.Owner:Team() != ent.Owner:Team() or (v.Owner:Team() == 50) then
+
 					ent.BuildTime = 51-(math.Clamp(((v:GetPos()-ent:GetPos()):Length()),1,200)*0.25)
 					ErrorNoHalt(ent.BuildTime)
 					if v:GetClass() == "sent_spawnpoint" then
@@ -148,9 +148,9 @@ function TOOL:LeftClick( trace )
 				end
 			end
 		end
-		
+
 		gamemode.Call( "PlayerSpawnedProp", ply, model, ent )
-	
+
 		DoPropSpawnedEffect( ent )
 
 		undo.Create( "Prop" )
@@ -168,19 +168,19 @@ function TOOL:RightClick( trace )
 	if CLIENT then return true end
 
 	local validprop = IsValid( self.TRACE.Entity ) and self.TRACE.Entity:GetClass() == "prop_physics"
-	
+
 	local ply = self:GetOwner()
 	local model = self:GetClientInfo( "model" )
 	if self.SWEP:GetFireMode() == 1 and validprop then model = self.TRACE.Entity:GetModel() end
 	if !model then return false end
-	
+
 	if --[[!trace.Hit or]] !gamemode.Call( "PlayerSpawnProp", ply, model ) then return false end
-	
+
 	if validprop then
 		local ent = ents.Create( "prop_physics" )
 		if !IsValid( ent ) then return false end
 		ent:SetModel( model )
-		
+
 		ent:SetMoveType( MOVETYPE_NONE )
 		ent:SetCollisionGroup( COLLISION_GROUP_WEAPON )
 
@@ -252,14 +252,14 @@ function TOOL:RightClick( trace )
 				end
 			end
 		end
-		
+
 		ent.BuildTime = 1
 		ent.CanRepair = true
 		for _, v in ipairs(ents.FindInSphere(ent:GetPos(),100)) do
 
-			if v:GetClass() == "prop_physics" and ValidEntity( v.Owner ) and(ent.Owner != v.Owner) then
-				if v.Owner:Team() != ent.Owner:Team() or (v.Owner:Team() == 50) then 
-				
+			if v:GetClass() == "prop_physics" and IsValid( v.Owner ) and(ent.Owner != v.Owner) then
+				if v.Owner:Team() != ent.Owner:Team() or (v.Owner:Team() == 50) then
+
 					ent.BuildTime = 101-(math.Clamp((v:GetPos()-ent:GetPos()):Length(),1,100))
 					ply:SendMessage( "Enemy structure nearby, build time may be affected.", "Prop spawn", false )
 					ent.CanRepair = false
@@ -267,9 +267,9 @@ function TOOL:RightClick( trace )
 				end
 			end
 		end
-		
+
 		gamemode.Call( "PlayerSpawnedProp", ply, model, ent )
-		
+
 		DoPropSpawnedEffect( ent )
 
 		undo.Create( "Prop" )
@@ -282,14 +282,14 @@ function TOOL:RightClick( trace )
 			physobj:EnableMotion( false )
 		end
 	end
-	
+
 	return true
 end
 
 local RESET_ACCEPTTIME = 0.20
 function TOOL:Think()
 	local curtime = CurTime()
-	
+
 	local ply = self:GetOwner()
 	local shootpos = ply:GetShootPos()
 	self.TRACE = util.TraceLine( {start=shootpos,endpos=shootpos+200*ply:GetAimVector(),filter=ply} )
@@ -300,7 +300,7 @@ function TOOL:Think()
 	self:UpdateGhostEntity()
 
 	if !CLIENT then return end
-	
+
 	local firemode = self.SWEP:GetFireMode()
 	if firemode == 1 then
 		local delta = curtime - self.USE_LAST
@@ -317,7 +317,7 @@ function TOOL:Think()
 
 	local ang = Angle( self:GetClientNumber("pitch",0), self:GetClientNumber("yaw",0), self:GetClientNumber("roll",0) )
 	local old_pitch, old_yaw, old_roll = ang.p, ang.y, ang.r
-	
+
 	if ply:KeyDown( IN_SPEED ) and !ply:KeyDownLast( IN_SPEED ) then
 		local snapdegrees = self:GetClientNumber( "snapdegrees", 45 )
 		ang = angnorm( ang )
@@ -325,7 +325,7 @@ function TOOL:Think()
 		ang.y = round( ang.y, snapdegrees, 360 )
 		ang.r = round( ang.r, snapdegrees, 360 )
 	end
-	
+
 	if ply:KeyDown( IN_USE ) then
 		if !ply:KeyDownLast( IN_USE ) then
 			local delta = curtime - self.USE_LAST
@@ -345,7 +345,7 @@ function TOOL:Think()
 		ang:RotateAroundAxis( Vector(0,0,1), x*sens )
 		ang:RotateAroundAxis( Vector(0,-1,0), y*sens )
 	end
-	
+
 	if old_pitch != ang.p then RunConsoleCommand( "propspawn_pitch", ang.p ) end
 	if old_yaw != ang.y then RunConsoleCommand( "propspawn_yaw", ang.y ) end
 	if old_roll != ang.r then RunConsoleCommand( "propspawn_roll", ang.r ) end
@@ -355,28 +355,28 @@ function TOOL:UpdateGhostEntity()
 	if self.GhostEntity == nil then return end
 	if !self.GhostEntity:IsValid() then self.GhostEntity = nil return end
 	local ply = self:GetOwner()
-	
+
 	local validprop = IsValid( self.TRACE.Entity ) and self.TRACE.Entity:GetClass() == "prop_physics"
-	
+
 	local model = self:GetClientInfo( "model" )
 	if self.SWEP:GetFireMode() == 1 and validprop then model = self.TRACE.Entity:GetModel() end
 	if self.GhostEntity:GetModel() != model then self.GhostEntity:SetModel( model ) end
-	
+
 	local TargetAngle
 	local TargetPos
 	local AngleOffset = GAMEMODE.SpawnAngleOffset[model] or Angle( 0, 0, 0 )
 	local PosOffset = GAMEMODE.SpawnPositionOffset[model] or 0
-		
+
 	if self.SWEP:GetFireMode() == 0 then
 		self.GhostEntity:SetColor( 255, 255, 255, 150 )
 		local snapdegrees = self:GetClientNumber( "snapdegrees", 45 )
 
 		TargetAngle = Angle( self:GetClientNumber("pitch",0), self:GetClientNumber("yaw",0), self:GetClientNumber("roll",0) ) + Angle( 0, ply:GetAngles().y, 0 )
-		
+
 		TargetAngle:RotateAroundAxis( TargetAngle:Right(), AngleOffset.p )
 		TargetAngle:RotateAroundAxis( TargetAngle:Up(), AngleOffset.y )
 		TargetAngle:RotateAroundAxis( TargetAngle:Forward(), AngleOffset.r )
-		
+
 		if ply:KeyDown( IN_SPEED ) --[[self.LOCKED_TO_WORLD]] --[[ply:KeyDown( IN_USE ) and ply:KeyDown( IN_SPEED )]] then
 			TargetAngle = angnorm( TargetAngle )
 			TargetAngle.p = round( TargetAngle.p, snapdegrees, 360 )
@@ -388,7 +388,7 @@ function TOOL:UpdateGhostEntity()
 		if self.TRACE.Hit and math.abs(self.TRACE.HitNormal.z) > 0.7 then
 			TargetPos = TargetPos - PosOffset * TargetAngle:Forward()
 		end
-		
+
 		local mins, maxs, center = self.GhostEntity:OBBMins(), self.GhostEntity:OBBMaxs(), self.GhostEntity:OBBCenter()
 		if math.abs(self.TRACE.HitNormal.z) > 0.7 then
 			if self.TRACE.HitNormal.z > 0 then
@@ -422,7 +422,7 @@ function TOOL:UpdateGhostEntity()
 		self.GhostEntity:SetColor( 255, 255, 255, 0 )
 		return
 	end
-	
+
 	self.GhostEntity:SetPos( TargetPos )
 	self.GhostEntity:SetAngles( TargetAngle )
 end
@@ -448,7 +448,7 @@ end
 
 function TOOL:DrawHUD()
 	if self.SWEP:GetFireMode() != 1 then return end
-	
+
 	local str = "<ERROR>"
 	local col = Color( 100, 100, 100, 220 )
 	local stackdir = self:GetClientNumber( "stackdir" )
@@ -471,33 +471,33 @@ function TOOL:DrawHUD()
 		str  = "Down"
 		col.b = 255
 	end
-	
+
 	surface.SetTextColor( col )
 	surface.SetFont( "DefaultFixedOutline" )
 	local tw, th = surface.GetTextSize( str )
 	surface.SetTextPos( round(ScrW()/2-tw/2,0), ScrH()/2+16 )
 	surface.DrawText( str )
-	
+
 	if self.TRACE and IsValid( self.TRACE.Entity ) then
 		local forward = self.TRACE.Entity:GetForward()
 		local right = self.TRACE.Entity:GetRight()
 		local up = self.TRACE.Entity:GetUp()
-		
+
 		local pos = self.TRACE.Entity:LocalToWorld( self.TRACE.Entity:OBBCenter() )
 		local pos_scr = pos:ToScreen()
-		
+
 		local endpos = (pos + 3 * forward):ToScreen()
 		surface.SetDrawColor( 255, 000, 000, 255 )
 		surface.DrawLine( pos_scr.x, pos_scr.y, endpos.x, endpos.y )
-		
+
 		endpos = (pos + 3 * right):ToScreen()
 		surface.SetDrawColor( 000, 255, 000, 255 )
 		surface.DrawLine( pos_scr.x, pos_scr.y, endpos.x, endpos.y )
-		
+
 		endpos = (pos + 3 * up):ToScreen()
 		surface.SetDrawColor( 000, 000, 255, 255 )
 		surface.DrawLine( pos_scr.x, pos_scr.y, endpos.x, endpos.y )
-		
+
 		if stackdir == 1 then
 			pos_scr = (pos + 3 * forward):ToScreen()
 			endpos = (pos + 4 * forward):ToScreen()

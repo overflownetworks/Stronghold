@@ -34,10 +34,10 @@ function TOOL:LeftClick( trace )
 			undo.AddEntity( msp )
 			undo.SetPlayer( ply )
 		undo.Finish()
-		
+
 		self.SWEP:SetNextPrimaryFire( CurTime() + 1 )
 	end
-	
+
 	return true
 end
 
@@ -61,8 +61,8 @@ local ERROR_SOUND = Sound( "buttons/button10.wav" )
 if SERVER then
 	function MakeSpawnPoint( ply, Ang, Pos, Model )
 		if ply:GetCount( "spawnpoints" ) > 4 then ply:SendMessage("Mobile Spawnpoint limit reached.") return end
-		
-	
+
+
 		local spawnpoint = ents.Create( "sent_spawnpoint" )
 		if !spawnpoint:IsValid() then return end
 		spawnpoint:SetModel( Model )
@@ -74,9 +74,9 @@ if SERVER then
 		spawnpoint.Owner = ply
 		if !ply.SpawnPoint then ply.SpawnPoint = {} end
 		table.insert( ply.SpawnPoint, spawnpoint )
-		
+
 		ply:AddCount( "spawnpoints", spawnpoint )
-		
+
 		DoPropSpawnedEffect( spawnpoint )
 
 		gamemode.Call( "PlayerSpawnedSENT", ply, spawnpoint )
@@ -88,7 +88,7 @@ elseif CLIENT then
 		if !self.Placeable then ang = Angle( 0, 0, 0 ) end
 
 		if !IsValid( self.GhostEntity ) then
-			self.GhostEntity = ents.Create( "prop_physics" )
+			self.GhostEntity = ents.CreateClientProp( "prop_physics" )
 			self.GhostEntity:SetModel( "models/props_combine/combine_mine01.mdl" )
 			self.GhostEntity:SetColor( 255, 0, 0, 200 )
 			self.GhostEntity:SetPos( pos )
@@ -96,25 +96,25 @@ elseif CLIENT then
 			self.GhostEntity:Spawn()
 			self.GhostEntity:SetMoveType( MOVETYPE_NONE )
 		end
-		
+
 		self.GhostEntity:SetPos( pos )
 		self.GhostEntity:SetAngles( ang )
-		
+
 		if self.Placeable then
 			self.GhostEntity:SetColor( 0, 255, 0, 200 )
 		else
 			self.GhostEntity:SetColor( 255, 0, 0, 200 )
 		end
 	end
-	
+
 	function TOOL:Holster()
 		if IsValid( self.GhostEntity ) then self.GhostEntity:Remove() end
 	end
-	
+
 	function TOOL:OnRemove()
 		if IsValid( self.GhostEntity ) then self.GhostEntity:Remove() end
 	end
-	
+
 	function TOOL:OwnerChanged()
 		if IsValid( self.GhostEntity ) then self.GhostEntity:Remove() end
 	end

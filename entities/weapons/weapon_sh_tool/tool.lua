@@ -1,12 +1,12 @@
 ToolObj = {}
 
-include( 'tool_object.lua' )
+include( "tool_object.lua" )
 
 function ToolObj:Create()
 	local o = {}
 	setmetatable( o, self )
 	self.__index = self
-	
+
 	o.Mode				= nil
 	o.SWEP				= nil
 	o.Owner				= nil
@@ -29,9 +29,9 @@ function ToolObj:CreateConVars()
 		end
 		return
 	end
-	
-	// Note: I changed this from replicated because replicated convars don't work
-	// when they're created via Lua.
+
+	-- Note: I changed this from replicated because replicated convars don't work
+	-- when they're created via Lua.
 	if SERVER then
 		self.AllowedCVar = CreateConVar( "toolmode_allow_"..mode, 1, FCVAR_NOTIFY )
 	end
@@ -58,7 +58,7 @@ function ToolObj:Allowed()
 	return self.AllowedCVar:GetBool()
 end
 
-// Now for all the ToolObj redirects
+-- Now for all the ToolObj redirects
 function ToolObj:GetMode() return self.Mode end
 function ToolObj:GetSWEP() return self.SWEP end
 function ToolObj:GetOwner() return self:GetSWEP().Owner or self.Owner end
@@ -69,21 +69,23 @@ function ToolObj:Reload() self:ClearObjects() end
 function ToolObj:Holster() self:ReleaseGhostEntity() return true end
 function ToolObj:Think() self:ReleaseGhostEntity() end
 
-/*---------------------------------------------------------
+--[[--------------------------------------------------------
 	Checks the objects before any action is taken
 	This is to make sure that the entities haven't been removed
----------------------------------------------------------*/
+---------------------------------------------------------]]--
+
 function ToolObj:CheckObjects()
 	for k, v in pairs(self.Objects) do
 		if !v.Ent:IsWorld() && !v.Ent:IsValid() then
 			self:ClearObjects()
-		end		
+		end
 	end
 end
 
-local toolmodes = file.FindInLua( SWEP.Folder.."/stools/*.lua" )
+
+local toolmodes = file.Find(SWEP.Folder .. "/stools/*.lua", "LUA") -- file.FindInLua( SWEP.Folder.."/stools/*.lua" )
 for key, val in pairs(toolmodes) do
-	local char1, char2, toolmode = string.find( val, "([%w_]*)\.lua" )
+	toolmode = string.StripExtension( val )
 
 	TOOL = ToolObj:Create()
 	TOOL.Mode = toolmode
@@ -99,24 +101,26 @@ end
 
 ToolObj = nil
 
+--[[
 if CLIENT then
 	// Keep the tool list handy
 	local TOOLS_LIST = SWEP.Tool
-	
+
 	// Add the STOOLS to the tool menu
 	local function AddSToolsToMenu()
 		for ToolName, TOOL in pairs(TOOLS_LIST) do
 			if ( TOOL.AddToMenu != false ) then
-				--[[spawnmenu.AddToolMenuOption( TOOL.Tab or "Main",
-												TOOL.Category or "New Category", 
-												ToolName, 
-												TOOL.Name or "#"..ToolName, 
-												TOOL.Command or "gmod_tool "..ToolName, 
+				spawnmenu.AddToolMenuOption( TOOL.Tab or "Main",
+												TOOL.Category or "New Category",
+												ToolName,
+												TOOL.Name or "#"..ToolName,
+												TOOL.Command or "gmod_tool "..ToolName,
 												TOOL.ConfigName or ToolName,
-												TOOL.BuildCPanel )]]
-				
+												TOOL.BuildCPanel )
+
 			end
 		end
 	end
 	--hook.Add( "PopulateToolMenu", "AddSToolsToMenu", AddSToolsToMenu )
 end
+]]--

@@ -2,26 +2,17 @@ if (SERVER) then
 	AddCSLuaFile("shared.lua")
 	SWEP.Weight 		= 5
 elseif (CLIENT) then
-	SWEP.DrawAmmo			= true		
-	SWEP.DrawCrosshair		= false		
-	SWEP.ViewModelFOV		= 60			
+	SWEP.DrawAmmo			= true
+	SWEP.DrawCrosshair		= false
+	SWEP.ViewModelFOV		= 60
 	SWEP.ViewModelFlip		= true
 	SWEP.Slot 			= 1
-
-	-- This is the font that's used to draw the death icons
-	surface.CreateFont("csd", ScreenScale(30), 500, true, true, "CSKillIcons")
-
-	-- This is the font that's used to draw the select icons
-	surface.CreateFont("csd", ScreenScale(60), 500, true, true, "CSSelectIcons")
-
-	-- This is the font that's used to draw the firemod icons
-	surface.CreateFont("HalfLife2", ScrW() / 60, 500, true, true, "Firemode")
 end
 SWEP.HoldType		= "pistol"
 SWEP.Base					= "weapon_sh_base"
-SWEP.MuzzleEffect			= "pistol" 
-SWEP.ShellEffect			= "rg_shelleject" 
-SWEP.MuzzleAttachment		= "1" 
+SWEP.MuzzleEffect			= "pistol"
+SWEP.ShellEffect			= "rg_shelleject"
+SWEP.MuzzleAttachment		= "1"
 SWEP.ShellEjectAttachment	= "2"
 SWEP.EjectDelay				= 0
 SWEP.DrawWeaponInfoBox  	= true

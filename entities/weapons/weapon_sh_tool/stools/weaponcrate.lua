@@ -53,7 +53,7 @@ end
 if SERVER then
 	function MakeWeaponCrate( ply, pos, ang )
 		if ply:GetCount( "sent_weaponcrate" ) > 0 then return false end
-	
+
 		local crate = ents.Create( "sent_weaponcrate" )
 		if !crate:IsValid() then return false end
 		crate:SetModel( "models/Items/ammocrate_smg2.mdl" )
@@ -72,9 +72,9 @@ if SERVER then
 				end
 			end
 		end
-		
+
 		ply:AddCount( "sent_weaponcrate", crate )
-		
+
 		DoPropSpawnedEffect( crate )
 
 		gamemode.Call( "PlayerSpawnedSENT", ply, crate )
@@ -86,35 +86,33 @@ elseif CLIENT then
 		if !self.Placeable then ang = Angle( 0, self:GetOwner():GetAngles().y-180, 0 ) end
 
 		if !IsValid( self.GhostEntity ) then
-			self.GhostEntity = ents.Create( "prop_physics" )
+			self.GhostEntity = ents.CreateClientProp( "prop_physics" )
 			self.GhostEntity:SetModel( "models/Items/ammocrate_smg2.mdl" )
 			self.GhostEntity:SetColor( 255, 0, 0, 200 )
 			self.GhostEntity:SetPos( pos )
 			self.GhostEntity:SetAngles( ang )
 			self.GhostEntity:Spawn()
-			self.GhostEntity:SetMoveType( MOVETYPE_NONE )
 		end
-		
+
 		self.GhostEntity:SetPos( pos )
 		self.GhostEntity:SetAngles( ang )
-		
+
 		if self.Placeable then
 			self.GhostEntity:SetColor( 0, 255, 0, 200 )
 		else
 			self.GhostEntity:SetColor( 255, 0, 0, 200 )
 		end
 	end
-	
+
 	function TOOL:Holster()
 		if IsValid( self.GhostEntity ) then self.GhostEntity:Remove() end
 	end
-	
+
 	function TOOL:OnRemove()
 		if IsValid( self.GhostEntity ) then self.GhostEntity:Remove() end
 	end
-	
+
 	function TOOL:OwnerChanged()
 		if IsValid( self.GhostEntity ) then self.GhostEntity:Remove() end
 	end
 end
-

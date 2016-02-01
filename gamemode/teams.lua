@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -76,7 +76,7 @@ function GM:CreateTeam( ply, name, pass, color )
 		ply:SendMessage( "You need to at least enter a team name!" )
 		return
 	end
-	
+
 	name = string.Left( name, 50 )
 	pass = (pass or "")
 	color = (color or Color( math.random(50,255), math.random(50,255), math.random(50,255), 255 ))
@@ -85,7 +85,7 @@ function GM:CreateTeam( ply, name, pass, color )
 		ply:SendMessage( "'"..name.."' is a restricted team name!", _, false )
 		return
 	end
-	
+
 	local exists = self:TeamExists( name )
 	if exists then
 		local name = self.Teams[exists].Name
@@ -94,19 +94,19 @@ function GM:CreateTeam( ply, name, pass, color )
 		ply:SendLua( [[surface.PlaySound( "buttons/button16.wav" )]] )
 		return
 	end
-	
+
 	if ply:Team() != 50 then
 		CCLeaveTeam( ply, _, {true} )
 	end
-	
+
 	self.TeamCount = self.TeamCount + 1
 	self.Teams[self.TeamCount] = { Leader=ply, Name=name, Password=pass, Color=color, LeaderOnlyPasswordSending=false }
 	team.SetUp( self.TeamCount, name, color )
-	
+
 	for _, v in ipairs(player.GetAll()) do
 		SendTeamToClient( v, self.TeamCount, ply, name, color )
 	end
-	
+
 	ply:SetTeam( self.TeamCount )
 	ply:SendLua( [[chat.AddText(Color(200,200,200,255),"Stronghold: ",Color(200,50,50,255),"You have created a new team [",Color(]]..color.r..[[,]]..color.g..[[,]]..color.b..[[,255),"]]..sql.SQLStr(name,true)..[[",Color(200,50,50,255),"]")]] )
 	ply:SendLua( [[surface.PlaySound( "buttons/button15.wav" )]] )
@@ -305,7 +305,7 @@ function CCLeaveTeam( ply, cmd, args )
 		ply:SendMessage( "How did you leave a non-existant team?!" )
 	elseif index > 50 then
 		ply:SetTeam( 50 )
-		
+
 		if !args or !args[1] then
 			local name = GAMEMODE.Teams[index].Name
 			local color = GAMEMODE.Teams[index].Color
@@ -313,7 +313,7 @@ function CCLeaveTeam( ply, cmd, args )
 			ply:SendLua( [[surface.PlaySound( "buttons/button15.wav" )]] )
 		end
 		MessageTeam( index, ply:GetName().." has left your team.", ply )
-		
+
 		if ply == GAMEMODE.Teams[index].Leader then
 			local members = team.GetPlayers( index )
 			PrintTable( members )
@@ -322,11 +322,11 @@ function CCLeaveTeam( ply, cmd, args )
 				GAMEMODE:DisbandTeam( index )
 				return
 			end
-			
+
 			local random = table.Random( members )
 			GAMEMODE.Teams[index].Leader = random
 			SendLeaderToClients( index, random )
-			
+
 			MessageTeam( index, random:GetName().." has become the new team leader.", ply )
 		end
 	else
@@ -342,24 +342,24 @@ concommand.Add( "sh_leaveteam", CCLeaveTeam, AutoCompleteLeaveTeam )
 local function CCJoinTeam( ply, cmd, args )
 	local name = string.lower( args[1] )
 	local pass = args[2] or ""
-	
+
 	local index = 50
 	for k, v in pairs(GAMEMODE.Teams) do
 		if string.lower( v.Name ) == name then
 			index = k
 		end
 	end
-	
+
 	if ply:Team() == index then
 		ply:SendMessage( "You are already on that team." )
 		return
 	end
-	
+
 	if GAMEMODE.Teams[index].Password == pass then
 		if ply:Team() != 50 then
 			CCLeaveTeam( ply, _, {true} )
 		end
-	
+
 		ply:SetTeam( index )
 		local name = GAMEMODE.Teams[index].Name
 		local color = GAMEMODE.Teams[index].Color
@@ -376,7 +376,8 @@ local function AutoCompleteJoinTeam( commandName, args )
 end
 concommand.Add( "sh_jointeam", CCJoinTeam, AutoCompleteJoinTeam )
 
-local function TeamDamage( ply, _, _, _, dmginfo )
+
+hook.Add( "EntityTakeDamage", "TeamDamage", function( ply, dmginfo )
 	local attacker = dmginfo:GetAttacker()
 	if ply != attacker and ply:IsPlayer() and attacker:IsPlayer()then
 		local index = attacker:Team()
@@ -390,5 +391,4 @@ local function TeamDamage( ply, _, _, _, dmginfo )
 			end
 		end
 	end
-end
-hook.Add( "EntityTakeDamage", "TeamDamage", TeamDamage )
+end )

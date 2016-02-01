@@ -1,5 +1,12 @@
 include('shared.lua')
-surface.CreateFont( "coolvetica", 18, 500, true, false, "BombText3" )
+surface.CreateFont( "BombText3", {
+	font = "coolvetica",
+	size = 18,
+	weight = 500,
+	antialias = true,
+	additive = false,
+})
+
 function ENT:Initialize()
 self.timer = CurTime()+5.5
 end
@@ -23,24 +30,24 @@ function ENT:Draw()
 	else
 	draw.SimpleText(TIME, "BombText3", 25, -18, Color(255,0,0,255),1,1)
 	end
-	cam.End3D2D() 
+	cam.End3D2D()
 end
 
 function ENT:Think()
 	self.SmokeTimer = self.SmokeTimer or 0
 
 	if ( self.SmokeTimer > CurTime() ) then return end
-	
+
 	self.SmokeTimer = CurTime() + 0.15
 
 	local vPos =  self:LocalToWorld( self:OBBCenter() );
-	
+
 	local R = math.Rand( 0.8, 1)
 
-	local vOffset = Vector(0, 0, 0) 
+	local vOffset = Vector(0, 0, 0)
 
 	local emitter = ParticleEmitter( vOffset )
-	
+
 	if self.timer < CurTime() then
 		local smoke = emitter:Add( "particle/particle_smokegrenade", vOffset + vPos )
 		smoke:SetVelocity(VectorRand() * math.Rand(5, 10))
@@ -54,7 +61,7 @@ function ENT:Think()
 		smoke:SetColor(20, 20, 20)
 		smoke:SetAirResistance(100)
 	end
-	
+
 	if self.timer < CurTime() then
 		local smoke = emitter:Add( "particles/smokey", vOffset + vPos )
 		smoke:SetVelocity(VectorRand() * math.Rand(5, 10))

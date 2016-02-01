@@ -26,7 +26,7 @@ function ENT:GetOverlayText()
 		return ""
 	end
 	
-	if ( SinglePlayer() ) then
+	if ( game.SinglePlayer() ) then
 		return txt
 	end
 

@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -27,12 +27,12 @@ function PANEL:Init()
 
 	local column = self:AddColumn( "Type" )
 	column:SetFixedWidth( 50 )
-	
+
 	self:AddColumn( "Name" )
-	
+
 	local column = self:AddColumn( "Price" )
 	column:SetFixedWidth( 50 )
-	
+
 	local column = self:AddColumn( "Buy" )
 	column:SetFixedWidth( 150 )
 end
@@ -43,8 +43,8 @@ function PANEL:AddLine( ... )
 
 	local Line = vgui.Create( "sh_itemlistview_line", self.pnlCanvas )
 	local ID = table.insert( self.Lines, Line )
-	
-	Line:SetListView( self ) 
+
+	Line:SetListView( self )
 	Line:SetID( ID )
 
 	for k, v in pairs(self.Columns) do
@@ -74,6 +74,7 @@ function PANEL:Init()
 	self.Quantity:SetDecimals( 0 )
 	self.Quantity:SetMinMax( 1, 1000 )
 	self.Quantity:SetValue( 1 )
+	--[[
 	function self.Quantity.OnMousePressed( panel, mc )
 		if !self:IsSelected() then self:OnMousePressed( mc ) end
 	end
@@ -83,10 +84,10 @@ function PANEL:Init()
 	end
 	function self.Quantity.TextEntry.OnMousePressed( panel, mc )
 		if !self:IsSelected() then self:OnMousePressed( mc ) end
-	end
-	
-	self.BuyMode = vgui.Create( "DMultiChoice", self )
-	self.BuyMode:SetEditable( false )
+	end]]
+
+	self.BuyMode = vgui.Create( "DComboBox", self )
+	--self.BuyMode:SetEditable( false )
 	self.BuyMode:AddChoice( "Hour [%10]" )
 	self.BuyMode:AddChoice( "Permanently" )
 	self.BuyMode:ChooseOptionID( 1 )
@@ -97,6 +98,7 @@ function PANEL:Init()
 	function self.BuyMode.OnSelect( panel, index, value, data )
 		self.m_iLicenseMode = index
 	end
+	--[[
 	function self.BuyMode.DropButton.OnMousePressed( panel, mc )
 		self.BuyMode:OpenMenu( self.BuyMode.DropButton )
 		if !self:IsSelected() then self:OnMousePressed( mc ) end
@@ -104,8 +106,8 @@ function PANEL:Init()
 	function self.BuyMode.TextEntry.OnMousePressed( panel, mc )
 		self.BuyMode:OpenMenu( self.BuyMode.TextEntry )
 		if !self:IsSelected() then self:OnMousePressed( mc ) end
-	end
-	
+	end]]
+
 	self.Buy = vgui.Create( "DButton", self )
 	self.Buy:SetText( "BUY" )
 	function self.Buy.OnMousePressed( panel, mc )
@@ -117,7 +119,7 @@ function PANEL:Init()
 	function self.Buy.DoClick()
 		self:DoBuy()
 	end
-	
+
 	self.m_iType = 0
 	self.m_iLicenseMode = 1
 end
@@ -125,7 +127,7 @@ end
 function PANEL:DoBuy()
 	local money = LocalPlayer():GetMoney()
 	local cost
-	
+
 	if self.m_iType <= 2 then
 		cost = (self.m_iLicenseMode==2 and tonumber( self:GetColumnText(3) ) or tonumber( self:GetColumnText(3) )*0.10)
 	else
@@ -138,7 +140,7 @@ function PANEL:DoBuy()
 	else
 		surface.PlaySound( SND_FAIL )
 	end
-	
+
 	if self.m_iType <= 2 then
 		RunConsoleCommand( "sh_buyitem", self.m_iType, self:GetColumnText(4), self.m_iLicenseMode )
 	else
@@ -148,7 +150,7 @@ end
 
 function PANEL:SetType( i )
 	self.m_iType = i
-	self.Quantity:SetVisible( i > 2 and i ~= 5 )	
+	self.Quantity:SetVisible( i > 2 and i ~= 5 )
 	self.BuyMode:SetVisible( i <= 2 )
 end
 
@@ -159,7 +161,7 @@ end
 function PANEL:DataLayout( listview )
 	self:ApplySchemeSettings()
 	local height = self:GetTall()
-	
+
 	local x = 0
 	for i, column in pairs(self.Columns) do
 		local w = listview:ColumnWidth( i )
@@ -188,9 +190,9 @@ function PANEL:Init()
 	self.CurrentItem = { name="<Select Item>", price=0, line=nil, item="", type=0 }
 
 	self.ItemModel = vgui.Create( "sh_itemmodel", self )
-	
+
 	self.Sections = vgui.Create( "DPropertySheet", self )
-	
+
 	local function OnRowSelected( panel, lineid, line )
 		local tbl
 		local type, item = line:GetType(), line:GetColumnText( 4 )
@@ -209,7 +211,7 @@ function PANEL:Init()
 		elseif type == 5 then
 			tbl = GAMEMODE.Hats[item]
 		end
-		
+
 		if tbl then
 			self.CurrentItem.name = tbl.name
 			self.CurrentItem.price = tbl.price
@@ -219,45 +221,45 @@ function PANEL:Init()
 			self.ItemModel:Setup( tbl.model, tbl.name, tbl.buyfov or 90, tbl.offset or Vector(-10,0,-5) )
 		end
 	end
-	
+
 	-- ----------
-	
+
 	self.PrimaryList = vgui.Create( "sh_itemlistview", self.Sections )
 	self.PrimaryList:SetMultiSelect( false )
 	self.Sections:AddSheet( "Primary Weapons", self.PrimaryList )
-	
+
 	self.PrimaryList.OnRowSelected = OnRowSelected
-	
+
 	-- ----------
-	
+
 	self.SecondaryList = vgui.Create( "sh_itemlistview", self.Sections )
 	self.SecondaryList:SetMultiSelect( false )
 	self.Sections:AddSheet( "Secondary Weapons", self.SecondaryList )
-	
+
 	self.SecondaryList.OnRowSelected = OnRowSelected
-	
+
 	-- ----------
-	
+
 	self.ExplosiveList = vgui.Create( "sh_itemlistview", self.Sections )
 	self.ExplosiveList:SetMultiSelect( false )
 	self.Sections:AddSheet( "Explosives", self.ExplosiveList )
-	
+
 	self.ExplosiveList.OnRowSelected = OnRowSelected
-	
+
 	-- ----------
-	
+
 	self.AmmoList = vgui.Create( "sh_itemlistview", self.Sections )
 	self.AmmoList:SetMultiSelect( false )
 	self.Sections:AddSheet( "Ammo", self.AmmoList )
-	
+
 	self.AmmoList.OnRowSelected = OnRowSelected
-	
+
 	-- ----------
-	
+
 	self.Apparel = vgui.Create( "sh_itemlistview", self.Sections )
 	self.Apparel:SetMultiSelect( false )
 	self.Sections:AddSheet( "Apparel", self.Apparel )
-	
+
 	self.Apparel.OnRowSelected = OnRowSelected
 end
 
@@ -273,7 +275,7 @@ function PANEL:RefreshShop()
 		end
 	end
 	self.PrimaryList:SortByColumn( 2, false )
-	
+
 	self.SecondaryList:Clear()
 	for class, tbl in pairs(GAMEMODE.SecondaryWeapons) do
 		if tbl.price != 0 and ply:GetLicenseTimeLeft( 2, class ) != -1 then
@@ -283,7 +285,7 @@ function PANEL:RefreshShop()
 		end
 	end
 	self.SecondaryList:SortByColumn( 2, false )
-	
+
 	self.ExplosiveList:Clear()
 	for class, tbl in pairs(GAMEMODE.Explosives) do
 		local type = ((tbl.cook and "Cookable") or "Timed")
@@ -291,20 +293,20 @@ function PANEL:RefreshShop()
 		line:SetType( 3 )
 	end
 	self.ExplosiveList:SortByColumn( 2, false )
-	
+
 	self.AmmoList:Clear()
 	for ammo, tbl in pairs(GAMEMODE.Ammo) do
 		local line = self.AmmoList:AddLine( tbl.type, tbl.name, tbl.price, ammo )
 		line:SetType( 4 )
 	end
 	self.AmmoList:SortByColumn( 2, false )
-	
+
 	self.Apparel:Clear()
 	for hat, tbl in pairs(GAMEMODE.Hats) do
 		local line = self.Apparel:AddLine( "Hat", tbl.name, tbl.price, hat )
 		line:SetType( 5 )
 	end
-	self.Apparel:SortByColumn( 2, false )	
+	self.Apparel:SortByColumn( 2, false )
 end
 
 local function shadowedtext( str, x, y, color, salpha )
@@ -323,14 +325,14 @@ function PANEL:Paint()
 	local wallet_x, wallet_y = w-rw, 34
 	local skin = self:GetSkin()
 	local wh = h-rw-44
-	
+
 	skin:DrawGenericBackground( 0, 0, w, 24, skin.panel_transback )
 	skin:DrawGenericBackground( wallet_x, wallet_y, rw, wh, skin.panel_transback )
 	skin:DrawGenericBackground( wallet_x, wallet_y+wh+10, rw, 24, skin.panel_transback )
-	
+
 	surface.SetFont( "TabLarge" )
 	surface.SetTextColor( 255, 255, 255, 255 )
-	
+
 	local tw, th = surface.GetTextSize( "The GBux Shop" )
 	surface.SetTextPos( w*0.50-tw*0.50, 12-th*0.50 )
 	surface.DrawText( "The GBux Shop" )
@@ -338,28 +340,28 @@ function PANEL:Paint()
 	local tw, th = surface.GetTextSize( "Wallet" )
 	surface.SetTextPos( w-rw*0.50-tw*0.50, 46-th*0.50 )
 	surface.DrawText( "Wallet" )
-	
+
 	local tw, th = surface.GetTextSize( "Inventory Count" )
 	surface.SetTextPos( wallet_x+12, wallet_y+wh+22-th*0.50 )
 	surface.DrawText( "Inventory Count" )
-	
+
 	local lineoffset = wallet_y+wh+11
 	surface.SetDrawColor( 200, 200, 200, 200 )
 	surface.DrawLine( wallet_x+1, 56, w-2, 56 )
 	surface.DrawLine( wallet_x+tw+20, lineoffset, wallet_x+tw+20, lineoffset+21 )
-	
+
 	surface.SetFont( "Trebuchet19" )
-	
+
 	local initial = ply:GetMoney()
 	local money = UTIL_FormatMoney( UTIL_PRound(initial,2) )
 	local tw, th = surface.GetTextSize( money )
 	shadowedtext( "Current Balance:", wallet_x+8, wallet_y+26, Color(255,255,255,255), 255 )
 	shadowedtext( money, w-tw-10, wallet_y+26, Color(255,255,255,255), 255 )
-	
+
 	local rawprice = math.abs( (IsValid(self.CurrentItem.line) and self.CurrentItem.price*tonumber(self.CurrentItem.line.Quantity:GetValue()) or self.CurrentItem.price) ) * -1
 	if IsValid( self.CurrentItem.line ) and self.CurrentItem.type <= 2 and self.CurrentItem.line.m_iLicenseMode == 1 then rawprice = rawprice * 0.10 end
 	local enough = (initial + rawprice) > 0
-	
+
 	local col
 	if enough then
 		local scale = math.abs( rawprice / initial )
@@ -367,17 +369,17 @@ function PANEL:Paint()
 	else
 		col = Color( 255, 0, 0, 255 )
 	end
-	
+
 	local price = UTIL_FormatMoney( UTIL_PRound(rawprice,2) )
 	local tw, th = surface.GetTextSize( price )
 	shadowedtext( "Last Selected: "..self.CurrentItem.name, wallet_x+8, wallet_y+46, col, 255 )
 	shadowedtext( price, w-tw-10, wallet_y+46, col, 255 )
-	
+
 	local balance = UTIL_FormatMoney( UTIL_PRound(initial + rawprice,2) )
 	local tw, th = surface.GetTextSize( balance )
 	shadowedtext( "Final Balance:", wallet_x+8, wallet_y+76, col, 255 )
 	shadowedtext( balance, w-tw-10, wallet_y+76, col, 255 )
-	
+
 	local invcount
 	if self.CurrentItem.type <= 2 or self.CurrentItem.type == 5 then
 		local timeleft = ply:GetLicenseTimeLeft( self.CurrentItem.type, self.CurrentItem.item )
@@ -392,10 +394,10 @@ end
 function PANEL:PerformLayout()
 	local w, h = self:GetWide(), self:GetTall()
 	local rw = h-150
-	
+
 	self.ItemModel:SetSize( rw, rw-34 )
 	self.ItemModel:SetPos( w-rw, h-rw+34 )
-	
+
 	self.Sections:SetSize( w-rw-10, h-34 )
 	self.Sections:SetPos( 0, 34 )
 end

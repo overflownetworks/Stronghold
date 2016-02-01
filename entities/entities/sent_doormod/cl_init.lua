@@ -10,7 +10,7 @@ end
 function ENT:Draw()
 	local ent = self:GetParent()
 	
-	if ValidEntity( ent ) then
+	if IsValid( ent ) then
 		if self.Disrupted then
 			ent:SetMaterial( self.ActiveMat )
 		else

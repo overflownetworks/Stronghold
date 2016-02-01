@@ -125,7 +125,7 @@ function GM:RenderScreenspaceEffects()
 				surface.SetMaterial( MAT_BLUR )	
 				surface.SetDrawColor( 255, 255, 255, 255 )
 				for i=0.25, 0.50, 0.25 do
-					MAT_BLUR:SetMaterialFloat( "$blur", scale * 10 * i )
+					MAT_BLUR:SetFloat( "$blur", scale * 10 * i )
 					render.UpdateScreenEffectTexture()
 					surface.DrawTexturedRect( 0, 0, sw, sh )
 				end
@@ -165,7 +165,7 @@ function GM:RenderScreenspaceEffects()
 				surface.SetMaterial( MAT_BLUR )	
 				surface.SetDrawColor( 255, 255, 255, 255*scale_b )
 				for i=0.25, 0.50, 0.25 do
-					MAT_BLUR:SetMaterialFloat( "$blur", scale_b * 10 * i )
+					MAT_BLUR:SetFloat( "$blur", scale_b * 10 * i )
 					if render then render.UpdateScreenEffectTexture() end
 					surface.DrawTexturedRect( 0, 0, sw, sh )
 				end
@@ -194,7 +194,7 @@ function GM:RenderScreenspaceEffects()
 			surface.SetMaterial( MAT_BLUR )	
 			surface.SetDrawColor( 255, 255, 255, 255 )
 			for i=0.50, 1, 0.50 do
-				MAT_BLUR:SetMaterialFloat( "$blur", SmokeBlur * 7 * i )
+				MAT_BLUR:SetFloat( "$blur", SmokeBlur * 7 * i )
 				render.UpdateScreenEffectTexture()
 				surface.DrawTexturedRect( 0, 0, sw, sh )
 			end
@@ -233,7 +233,7 @@ function GM:RenderScreenspaceEffects()
 			surface.SetMaterial( MAT_BLUR )	
 			surface.SetDrawColor( 255, 255, 255, 255 )
 			for i=0.50, 1, 0.50 do
-				MAT_BLUR:SetMaterialFloat( "$blur", 0.50 * 7 * i )
+				MAT_BLUR:SetFloat( "$blur", 0.50 * 7 * i )
 				render.UpdateScreenEffectTexture()
 				surface.DrawTexturedRect( 0, 0, sw, sh )
 			end
@@ -316,7 +316,7 @@ timer.Create( "SmokeGrenadeBlur", 0.10, 0, SmokeGrenadeBlur )
 	render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL )
 		
 	render.SetMaterial( MAT_BLUR )
-	MAT_BLUR:SetMaterialFloat( "$blur", 1 * 10 )
+	MAT_BLUR:SetFloat( "$blur", 1 * 10 )
 	render.UpdateScreenEffectTexture()
 	
 	render.DrawScreenQuad()

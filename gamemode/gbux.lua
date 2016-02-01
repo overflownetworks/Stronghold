@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -11,24 +11,24 @@ concommand.Add( "sh_buyitem",
 	function( ply, cmd, args )
 		ply:BuyItem( tonumber(args[1]), args[2], tonumber(args[3]) )
 	end )
-	
+
 local function CCGiveAwayMoney( ply, cmd, args )
 	local givingto = Entity( tonumber(args[1]) )
 	local amount = tonumber( args[2] )
-	
+
 	if amount < 0 then
 		ply:SendLua( [[chat.AddText(Color(200,200,200,255),"Stronghold: ",Color(200,50,50,255),"Can not give negative money!")]] )
 		ply:SendLua( [[surface.PlaySound( "buttons/button16.wav" )]] )
 		return
 	end
-	
+
 	if IsValid( givingto ) then
 		if ply:GetMoney() - amount > 0 then
 			ply:AddMoney( amount * -1 )
 			givingto:AddMoney( amount )
 			ply:SaveMoney()
 			givingto:SaveMoney()
-			
+
 			ply:SendLua( [[chat.AddText(Color(200,200,200,255),"Stronghold: ",Color(200,50,50,255),"]]..UTIL_FormatMoney( UTIL_PRound(amount,2))..[[ given to ]]..sql.SQLStr(givingto:GetName(),true)..[[.")]] )
 			ply:SendLua( [[surface.PlaySound( "buttons/button15.wav" )]] )
 			givingto:SendLua( [[chat.AddText(Color(200,200,200,255),"Stronghold: ",Color(200,50,50,255),"You have been given ]]..UTIL_FormatMoney( UTIL_PRound(amount,2))..[[ by ]]..sql.SQLStr(ply:GetName(),true)..[[.")]] )
@@ -47,14 +47,16 @@ local function AutoCompleteGiveAwayMoney( commandName, args )
 	return { "sh_giveawaymoney <Entity ID of player> Amount" }
 end
 concommand.Add( "sh_giveawaymoney", CCGiveAwayMoney, AutoCompleteGiveAwayMoney )
-	
+
 function SH_SendClientItems( ply )
 	if !IsValid( ply ) then return end
 
 	local items = ply:GetItems()
 	if !items then return end
-	
-	datastream.StreamToClients( ply, "sh_items", items )
+
+	net.Start("sh_items")
+		net.WriteTable(items)
+	net.Send(ply)
 end
 
 function SH_SendClientItem( ply, name )
@@ -62,17 +64,21 @@ function SH_SendClientItem( ply, name )
 
 	local item = ply:GetItem( name )
 	if !item then return end
-	
-	datastream.StreamToClients( ply, "sh_item", {[name]=item} )
+
+	net.Start("sh_item")
+		net.WriteTable({[name]=item})
+	net.Send(ply)
 end
-	
+
 function SH_SendClientLicenses( ply )
 	if !IsValid( ply ) then return end
 
 	local licenses = ply:GetLicenses()
 	if !licenses then return end
-	
-	datastream.StreamToClients( ply, "sh_licenses", licenses )
+
+	net.Start("sh_licenses")
+		net.WriteTable(licenses)
+	net.Send(ply)
 end
 
 function SH_SendClientLicense( ply, type, class )
@@ -80,14 +86,15 @@ function SH_SendClientLicense( ply, type, class )
 
 	local license = ply:GetLicense( type, class )
 	if !license then return end
-	
-	--ErrorNoHalt( "Sending "..type.." "..class.."\n" )
-	datastream.StreamToClients( ply, "sh_license", {[type]={[class]=license}} )
+
+	net.Start("sh_license")
+		net.WriteTable({[type]={[class]=license}})
+	net.Send(ply)
 end
 
 function GBuxAddMoney( ply, command, args )
 	if IsValid( ply ) and !ply:IsAdmin() then return end
-	
+
 	if !args or #args < 2 then
 		if IsValid( ply ) then
 			ply:PrintMessage( HUD_PRINTCONSOLE, "Usage: gbux_addmoney <partial name> <money>\n" )
@@ -135,7 +142,7 @@ concommand.Add( "gbux_addmoney", GBuxAddMoney )
 
 function GBuxAddMoneyByID( ply, command, args )
 	if IsValid( ply ) and !ply:IsAdmin() then return end
-	
+
 	if !args or #args < 2 then
 		if IsValid( ply ) then
 			ply:PrintMessage( HUD_PRINTCONSOLE, "Usage: gbux_addmoneybyid <steamid> <money>\n" )
@@ -144,7 +151,7 @@ function GBuxAddMoneyByID( ply, command, args )
 		end
 		return
 	end
-	
+
 	for _, v in ipairs(player.GetAll()) do
 		if v:SteamID() == args[1] then
 			v:AddMoney( tonumber(args[2]) )
@@ -171,10 +178,10 @@ function GBuxAddMoneyByID( ply, command, args )
 	}
 	tbl.Items["money"].count = tbl.Items["money"].count + tonumber( args[2] )
 
-	
+
 	local encoded = glon.encode( tbl )
 	file.Write( filename, encoded )
-	
+
 	local str = !err and "GBux: "..tonumber(args[2]).." given to "..args[1]..".\n" or "SQL Error!\n"
 	if IsValid( ply ) then
 		ply:PrintMessage( HUD_PRINTCONSOLE, str )

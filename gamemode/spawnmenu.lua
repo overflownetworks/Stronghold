@@ -2,15 +2,15 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
 if SERVER then
 	local function LimitReachedProcess( ply, str )
-		local max = server_settings.Int( "sbox_max"..str, 0 )
-		
+		local max = GetConVar("sbox_max"..str):GetInt() or 0
+
 		--[[if str == "props" then
 			if ply:IsGold() then
 				max = max + 10
@@ -18,10 +18,10 @@ if SERVER then
 				max = max + 20
 			end
 		end]]
-		
-		if ply:GetCount( str ) < max or max < 0 then return true end 
 
-		ply:LimitHit( str ) 
+		if ply:GetCount( str ) < max or max < 0 then return true end
+
+		ply:LimitHit( str )
 		return false
 	end
 
@@ -32,7 +32,7 @@ if SERVER then
 	function GM:PlayerSpawnEffect( ply, model )
 		return table.HasValue( self.SpawnLists["All"], string.lower(model) ) and LimitReachedProcess( ply, "effects" )
 	end
-	
+
 	local function SwitchToToolGun( ply )
 		local wep = ply:GetWeapon( "weapon_sh_tool" )
 		if wep.SetFireMode then wep:SetFireMode( 0 ) end
@@ -51,12 +51,12 @@ function GM:PlayerSpawnedProp( ply, model, ent )
 	ply:AddCount( "props", ent )
 	ent:SetOwnerEnt( ply )
 	ent:SetOwnerUID( ply:UniqueID() )
-	
+
 	self:SetEntHealth( ent )
-	
+
 	local physobj = ent:GetPhysicsObject()
 	if physobj:IsValid() then physobj:SetMass( 10000 ) end
-	
+
 	ply:AddStatistic( "propsplaced", 1 )
 end
 
@@ -66,14 +66,14 @@ function FixInvalidPhysicsObject( Prop )
 
 	local min, max = PhysObj:GetAABB()
 	if  !min || !max then return end
-	
+
 	local PhysSize = (min - max):Length()
 	if PhysSize > 5 then return end
-	
-	local min = Prop:OBBMins()	
+
+	local min = Prop:OBBMins()
 	local max = Prop:OBBMaxs()
 	if  !min || !max then return end
-	
+
 	local ModelSize = (min - max):Length()
 	local Difference = math.abs( ModelSize - PhysSize )
 	if Difference < 10 then return end
@@ -108,7 +108,7 @@ function GM:CanTool( ply, trace, mode )
 	end
 
 	if trace.Entity.m_tblToolsAllowed then
-		local vFound = false	
+		local vFound = false
 		for k, v in pairs(trace.Entity.m_tblToolsAllowed) do
 			if mode == v then vFound = true end
 		end
@@ -118,7 +118,7 @@ function GM:CanTool( ply, trace, mode )
 	if trace.Entity.CanTool then
 		return trace.Entity:CanTool( ply, trace, mode )
 	end
-	
+
 	return true
 end
 

@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -11,7 +11,7 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-
 include( "glon.lua" ) -- This is manually added to prevent a Linux issue because Garry...
 AddCSLuaFile( "glon.lua" )
 
-require( "datastream" )
+
 include( "resources.lua" )
 --include( "sqlx.lua" )
 
@@ -45,6 +45,14 @@ AddCSLuaFile( "cl_hats.lua" )
 
 --AddCSLuaFile( "WHM.lua" )
 --AddCSLuaFile( "Types/WHM_weather_snow.lua" )
+util.AddNetworkString( "sh_items" )
+util.AddNetworkString( "sh_item" )
+util.AddNetworkString( "sh_licenses" )
+util.AddNetworkString( "sh_license" )
+util.AddNetworkString( "sh_loadouts" )
+util.AddNetworkString( "sh_loadout" )
+util.AddNetworkString( "sh_statistics" )
+util.AddNetworkString( "sh_maplist" )
 
 include( "vgui/vgui_manifest.lua" )
 AddCSLuaFile( "vgui/vgui_manifest.lua" )
@@ -105,12 +113,12 @@ end
 local CFGPATH = "sh_adverts.txt"
 function GM:LoadAdverts( ply )
 	if IsValid( ply ) and !ply:IsAdmin() then return end
-	
+
 	self.Adverts = {}
 	self.CurrentAdvert = 1
 
-	if file.Exists( CFGPATH ) then
-		local data = file.Read( CFGPATH )
+	if file.Exists( CFGPATH, "DATA" ) then
+		local data = file.Read( CFGPATH, "DATA" )
 		local tbl = string.Explode( "\n", data )
 		for _, v in ipairs(tbl) do
 			local sep = string.find( v, ";" )
@@ -166,7 +174,7 @@ local function AdvertTimer()
 			umsg.End()
 		end
 	end
-	
+
 	GAMEMODE.CurrentAdvert = GAMEMODE.CurrentAdvert + 1
 	if GAMEMODE.CurrentAdvert > #GAMEMODE.Adverts then GAMEMODE.CurrentAdvert = 1 end
 end
@@ -199,7 +207,7 @@ function GM:Think()
 				ply.IsGod = false
 				ply:GodDisable()
 				ply:SetMaterial( "" )
-				ply:SetColor( 255, 255, 255, 255 ) 
+				ply:SetColor( 255, 255, 255, 255 )
 				umsg.Start( "sh_spawnprotection", ply )
 				  umsg.Bool( false )
 				umsg.End()
@@ -210,12 +218,12 @@ function GM:Think()
 		local instant_fade_count = #GAMEMODE.Ragdolls - RagdollMax
 		for i, tbl in ipairs(GAMEMODE.Ragdolls) do
 			local deltatime = curtime - tbl.time
-		
+
 			if instant_fade_count > 0 and deltatime < (RagdollTime-1) then
 				tbl.time = curtime - RagdollTime + 1
 			end
 			instant_fade_count = instant_fade_count - 1
-		
+
 			if deltatime >= RagdollTime then
 				if IsValid( tbl.ent ) then tbl.ent:Remove() end
 				table.remove( GAMEMODE.Ragdolls, i )
@@ -229,7 +237,7 @@ function GM:Think()
 			end
 		end
 	-- End Ragdolls
-	
+
 	-- Building Props
 	for ent, time in pairs(GAMEMODE.BuildingProps) do
 			if !IsValid( ent ) then
@@ -239,7 +247,7 @@ function GM:Think()
 				local hpmax = ent:GetMaxHealth()
 				hp = hp + ((curtime-PropBuildLast) / ent.BuildTime) * hpmax
 				local scale = hp / hpmax
-			
+
 				if scale >= 1 then
 					GAMEMODE.BuildingProps[ent] = nil
 					ent:SetHealth( ent:GetMaxHealth() )
@@ -254,7 +262,7 @@ function GM:Think()
 		end
 		PropBuildLast = curtime
 	-- Building Props End
-	
+
 	-- Weapon switch
 		for _, v in ipairs(player.GetAll()) do
 			local wep = v:GetActiveWeapon()
@@ -264,20 +272,20 @@ function GM:Think()
 			end
 		end
 	-- End Weapon switch
-	
+
 	-- Data Save
 		if curtime - DataSaveLast >= DataSaveDelay then
 			if lprof then lprof.PushScope( "SH - Save Data" ) end
-			
+
 			for _, v in ipairs(player.GetHumans()) do
 				v:SaveData()
 			end
 			DataSaveLast = curtime
-			
+
 			if lprof then lprof.PopScope() end
 		end
 	-- End Data Save
-	
+
 	-- GBux Send
 		for _, v in ipairs(player.GetHumans()) do
 			v:SetLastKill( v:GetLastKill() or 0 )
@@ -286,7 +294,7 @@ function GM:Think()
 				v:SetLastKill( curtime )
 			end
 		end
-	
+
 		if curtime - GBuxSendLast >= GBuxSendDelay then
 			for _, v in ipairs(player.GetHumans()) do
 				v:AddMoney( GAMEMODE.ConVars.GBuxMPM:GetFloat() / 60 * GBuxSendDelay * v:GetMultiplier() )
@@ -311,7 +319,7 @@ function GM:Think()
 	if self.GameOver then
 		local timelimit = GAMEMODE.ConVars.TimeLimit:GetFloat()
 		local votingenabled = GAMEMODE.ConVars.VoteEnabled:GetBool()
-		
+
 		local timepassed = (CurTime() - self.LastGameReset) / 60
 		if timelimit > 0 then
 			if votingenabled then
@@ -328,7 +336,7 @@ function GM:Think()
 		end
 		return
 	end
-	
+
 	-- Regen
 		if curtime - HealthRegenLast >= HealthRegenDelay then
 			for _, v in ipairs(player.GetAll()) do
@@ -339,7 +347,7 @@ function GM:Think()
 			HealthRegenLast = curtime
 		end
 	-- End Regen
-	
+
 	-- Endgame
 		local gameover, team_index, winner = self:IsGameOver()
 		if gameover then
@@ -349,7 +357,7 @@ function GM:Think()
 			self:OnGameOver( team_index, winner )
 		end
 	-- End Endgame
-	
+
 	if lprof then lprof.PopScope() end
 end
 
@@ -359,7 +367,7 @@ function LicenceTimeCheck()
 		local primaries = ply:GetLicenses( 1 )
 		local secondaries = ply:GetLicenses( 2 )
 		local hats = ply:GetLicenses( 5 )
-		
+
 		if primaries then
 			for class, time_when_over in pairs(primaries) do
 				if time_when_over != -1 and time_when_over - ostime <= 0 then
@@ -367,7 +375,7 @@ function LicenceTimeCheck()
 				end
 			end
 		end
-		
+
 		if secondaries then
 			for class, time_when_over in pairs(secondaries) do
 				if time_when_over != -1 and time_when_over - ostime <= 0 then
@@ -375,7 +383,7 @@ function LicenceTimeCheck()
 				end
 			end
 		end
-			
+
 		if hats then
 			for class, time_when_over in pairs(hats) do
 				if time_when_over != -1 and time_when_over - ostime <= 0 then
@@ -383,7 +391,7 @@ function LicenceTimeCheck()
 				end
 			end
 		end
-		
+
 		SH_SendClientLicenses( ply )
 	end
 end
@@ -396,7 +404,7 @@ function GM:Tick()
 	for _, v in ipairs(ents.FindByClass("prop_ragdoll")) do
 		v:SetBloodColor(-1)
 	end
-	
+
 	for _, v in ipairs(ents.GetAll()) do
 		if v.IsOnFire and v.Extinguish and v:IsOnFire() then
 			local mat = v:GetMaterialType()
@@ -413,7 +421,7 @@ function GM:IsGameOver()
 	if timelimit > 0 and (CurTime()-self.LastGameReset)/60 >= timelimit then
 		return true, 0, nil
 	end
-	
+
 	-- Not over
 	return false, 0, nil
 end
@@ -449,20 +457,20 @@ end
 
 function GM:SetEntHealth( ent )
 	local newhp = (DefaultHealths[ent:GetClass()] or 100)
-	
+
 	if getmodelproperties then
 		local surfaceprop, _ = getmodelproperties( ent:GetModel() )
 		if string.find( string.lower(surfaceprop), "wood" ) then newhp = newhp/4 end
 	elseif string.find( ent:GetModel(), "wood" ) then
 		newhp = newhp/4
 	end
-	
+
 	ent:SetMaxHealth( newhp )
-	
+
 	if ent:GetClass() == "prop_physics" then
 		ent:SetHealth( 1 )
 		GAMEMODE.BuildingProps[ent] = CurTime()
-		
+
 		ent.BuildSound = CreateSound( ent, PropBuildingSound )
 		ent.BuildSound:PlayEx( 0.25, 100 )
 		ent:CallOnRemove( "StopBuildSound",
@@ -475,39 +483,36 @@ function GM:SetEntHealth( ent )
 	end
 end
 
-function GM:EntityTakeDamage( ent, inflictor, attacker, amount, dmginfo )
+function GM:EntityTakeDamage( ent, dmginfo )
+	local inflictor = dmginfo:GetInflictor()
+	local attacker = dmginfo:GetAttacker()
+
 	if attacker:IsPlayer() and attacker.IsGod then
 		dmginfo:ScaleDamage( 0 )
-	--[[	attacker.IsGod = false
-		attacker:GodDisable()
-		attacker:SetMaterial( "" )
-		attacker:SetColor( 255, 255, 255, 255 )
-		umsg.Start( "sh_spawnprotection", attacker )
-		  umsg.Bool( false )
-		umsg.End()]]
 		return
 	end
-	
+
 	if ent:IsPlayer() then return end
-	
+
 	if GAMEMODE.BuildingProps[ent] then
 		GAMEMODE.BuildingProps[ent] = nil
 		ent:SetHealth( ent:Health() - 500 )
 		if ent.BuildSound then ent.BuildSound:Stop() ent.BuildSound = nil end
 		ent:BuildingSolidify()
 	end
-	
+
 	local class = ent:GetClass()
+	local amount = dmginfo:GetDamage()
 	if IsValid( inflictor ) then
 		if inflictor:GetClass() == "sent_turret_mountable" or inflictor:GetClass() == "gmod_turret" or !table.HasValue( BreakableEntities, class ) then return end
 
 		if inflictor:GetClass() == "sent_c4" or inflictor:GetClass() == "sent_rocket" then
-			amount = math.min( 2500, amount )
+			dmginfo:SetDamage( math.min( 2500, amount ))
 		else
-			amount = math.min( 5, amount )
+			dmginfo:SetDamage( math.min( 5, amount ))
 		end
 	else
-		amount = math.min( 5, amount )
+		dmginfo:SetDamage( math.min( 5, amount ))
 	end
 
 	if ent:GetMaxHealth() == 0 then
@@ -520,12 +525,12 @@ function GM:EntityTakeDamage( ent, inflictor, attacker, amount, dmginfo )
 		end
 		ent:SetHealth( newhp )
 		ent:SetMaxHealth( newhp )]]--
-		
+
 		self:SetEntHealth( ent )
 	end
 	local hp, max = ent:Health(), ent:GetMaxHealth()
 
-	hp = hp - amount
+	hp = hp - dmginfo:GetDamage()
 	local c = 255 * (hp / max)
 	ent:SetColor( c, c, c, 255 )
 	if hp <= 0 then
@@ -544,8 +549,8 @@ function GM:EntityTakeDamage( ent, inflictor, attacker, amount, dmginfo )
 					ed:SetStart( pos )
 					ed:SetOrigin( pos )
 					ed:SetScale( 1 )
-				util.Effect( "HelicopterMegaBomb", ed ) 
-				WorldSound( "ambient/explosions/explode_7.wav", pos, 100, 100 )
+				util.Effect( "HelicopterMegaBomb", ed )
+				sound.Play( "ambient/explosions/explode_7.wav", pos, 100, 100, 1 )
 			else
 				local ed = EffectData()
 					ed:SetStart( pos )
@@ -553,7 +558,7 @@ function GM:EntityTakeDamage( ent, inflictor, attacker, amount, dmginfo )
 					ed:SetScale( 1 )
 				util.Effect( "cball_explode", ed )
 				util.Effect( "ImpactJeep", ed )
-				WorldSound( "physics/metal/metal_box_break1.wav", pos, 100, 100 )
+				sound.Play( "physics/metal/metal_box_break1.wav", pos, 100, 100, 1 )
 			end
 		end
 		if attacker:IsPlayer() then

@@ -15,7 +15,7 @@ if CLIENT then
 	SWEP.ViewModelFOV		= 65
 	SWEP.ViewModelFlip		= true
 	SWEP.CSMuzzleFlashes	= false
-	
+
 	CreateClientConVar( "sh_wep_quickgrenade", "0", true, false )
 
 	SWEP.IconLetter 			= "O"
@@ -80,7 +80,7 @@ function SWEP:Think()
 	 if self.Primed == 1 and SERVER then
 		if self.Cookable and CurTime() - self.Throw > GRENADE_COOK_TIME then -- LOL HELD TOO LONG
 			self.Primed = 2
-			
+
 			self.CookTime = CurTime() - self.Throw -- THIS GETS THE TIME BETWEEN WHEN YOU STARTED COOKING AND NOW
 			self.Throw = CurTime() + 0
 
@@ -89,7 +89,7 @@ function SWEP:Think()
 			if self.Throw < CurTime() then
 				self.Primed = 2
 				self.CookTime = CurTime() - self.Throw -- THIS GETS THE TIME BETWEEN WHEN YOU STARTED COOKING AND NOW
-				self.Throw = CurTime() + 0.5	
+				self.Throw = CurTime() + 0.5
 				self.Weapon:SendWeaponAnim( ACT_VM_THROW )
 				self.Owner:SetAnimation( PLAYER_ATTACK1 )
 				timer.Simple( 0.3, function()
@@ -133,11 +133,11 @@ function SWEP:ThrowGrenade( short )
 		v = v + self.Owner:GetRight() * 3
 		v = v + self.Owner:GetUp() * (!short and 1 or -3)
 	ent:SetPos( v )
-	ent:SetAngles( Vector(math.random(1,100),math.random(1,100),math.random(1,100)) )
+	ent:SetAngles( Vector(math.random(1,100), math.random(1,100), math.random(1,100)):Angle() )
 	ent:SetOwner( self.Owner )
 	ent.GrenadeOwner = self.Owner
-	ent:Spawn() 
-	
+	ent:Spawn()
+
 	if self.Cookable then
 		ent:SetDuration( GRENADE_COOK_TIME - self.CookTime )
 		if self.CookableDamage and self.CookTime > GRENADE_COOK_TIME then
@@ -149,17 +149,17 @@ function SWEP:ThrowGrenade( short )
 			self.Owner:SetDSP( 31 )
 		end
 	end
-	
-	if self.Owner:KeyDown( IN_FORWARD | IN_SPEED ) then
+
+	if self.Owner:KeyDown( bit.band(IN_FORWARD, IN_SPEED) ) then
 		self.Force = (!short and self.ThrowForce + 300 or self.ThrowForce + 300 - 1500)
-	elseif self.Owner:KeyDown( IN_BACK | IN_SPEED ) then
+	elseif self.Owner:KeyDown( bit.band(IN_BACK, IN_SPEED )) then
 		self.Force = (!short and self.ThrowForce - 300 or self.ThrowForce - 300 - 1500)
 	else
 		self.Force = (!short and self.ThrowForce or self.ThrowForce - 1500)
 	end
-	
+
 	--if not self.Owner then return end self.Owner:ViewPunch(Vector(math.Rand(-0.1, -0.5), math.Rand(0.1, 0.5), math.Rand(-0.1, -0.5)))
- 
+
 	local phys = ent:GetPhysicsObject()
 	phys:ApplyForceCenter( self.Owner:GetAimVector() * self.Force *1.2 + Vector(0,0,200) )
 	phys:SetVelocity( phys:GetVelocity() + self.Owner:GetVelocity() )
@@ -167,12 +167,12 @@ function SWEP:ThrowGrenade( short )
 	self.Owner:RemoveAmmo( 1, self.Primary.Ammo )
 
 	self.LastThrow = CurTime() + 0.6
-	
+
 	if self.Owner:GetAmmoCount( self.Primary.Ammo ) == 0 then
 		self.Owner:ConCommand( "lastinv" )
 		self.Weapon:Remove()
 	end
-	
+
 
 
 end

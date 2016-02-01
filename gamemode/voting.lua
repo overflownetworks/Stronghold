@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -11,8 +11,8 @@ local VotingEnabled = false
 
 local MAPLISTPATH = "sh_maplist.txt"
 function GM:LoadMapList()
-	if file.Exists( MAPLISTPATH ) then
-		local data = file.Read( MAPLISTPATH )
+	if file.Exists( MAPLISTPATH, "DATA" ) then
+		local data = file.Read( MAPLISTPATH, "DATA" )
 		local tbl = string.Explode( "\n", data )
 		for _, v in ipairs(tbl) do
 			local sep = string.find( v, ";" )
@@ -42,9 +42,9 @@ end
 concommand.Add( "sh_reloadmaplist", function() GAMEMODE:LoadMapList() end )
 
 function GM:SendMapList()
-	for _, v in ipairs(player.GetAll()) do
-		datastream.StreamToClients( v, "sh_maplist", GAMEMODE.MapList )
-	end
+	net.Start("sh_maplist")
+		net.WriteTable(GAMEMODE.MapList)
+	net.Broadcast()
 end
 
 function GM:EnableVotingSystem()
@@ -61,7 +61,7 @@ end
 function GM:SetNextMap()
 	if !VotingEnabled then return end
 		GAMEMODE.WinningMap = GAMEMODE:GetNextMap( true )
-		
+
 		local rf = RecipientFilter()
 		rf:AddAllPlayers()
 		umsg.Start( "sh_winningmap", rf )
@@ -69,7 +69,7 @@ function GM:SetNextMap()
 		umsg.End()
 		for _, v in ipairs(player.GetHumans()) do v:SaveData() end
 
-		GAMEMODE:StartCountDown( 5, "Map change in", [[game.ConsoleCommand("changelevel "..GAMEMODE.WinningMap.."\n")]], "" ) 
+		GAMEMODE:StartCountDown( 5, "Map change in", [[game.ConsoleCommand("changelevel "..GAMEMODE.WinningMap.."\n")]], "" )
 end
 
 function GM:GetNextMap( byvote )

@@ -26,7 +26,7 @@ end
 function TOOL:LeftClick( tr )
 	if !self.NextRepairTime then self.NextRepairTime = CurTime() end
 	if self.NextRepairTime >= CurTime() then return false end
-	
+
 	if IsValid( tr.Entity ) and !tr.Entity:IsPlayer() then
 		local hp, max = tr.Entity:Health(), tr.Entity:GetMaxHealth()
 		local effectpos = tr.HitPos + 2 * tr.HitNormal
@@ -35,14 +35,14 @@ function TOOL:LeftClick( tr )
 				if tr.Entity.CanRepair then
 					tr.Entity:SetHealth( math.min(max,hp+4) )
 					if tr.Entity:IsOnFire() then tr.Entity:Extinguish() end
-					
+
 					local c = 255 * (tr.Entity:Health() / max)
 					if !GAMEMODE.BuildingProps[tr.Entity] then tr.Entity:SetColor( c, c, c, 255 ) end
-					WorldSound( SND_SPARK, tr.HitPos - 2 * tr.HitNormal, 60, 100+math.random(0,10) )
+					sound.Play(SND_SPARK, tr.HitPos - 2 * tr.HitNormal, 60, 100+math.random(0,10), 1)
 				end
 				end
-			
-		
+
+
 			local effect = EffectData()
 				effect:SetNormal( tr.HitNormal )
 				effect:SetStart( effectpos )
@@ -61,7 +61,7 @@ end
 function TOOL:RightClick( tr )
 	if !self.NextRepairTime then self.NextRepairTime = CurTime() end
 	if self.NextRepairTime >= CurTime() then return false end
-    
+
 	if IsValid( tr.Entity ) then
 		local effectpos = tr.HitPos + 2 * tr.HitNormal
 		if SERVER then
@@ -74,9 +74,9 @@ function TOOL:RightClick( tr )
 				dmginfo:SetDamage( 2 )
 			end
 			tr.Entity:TakeDamageInfo( dmginfo )
-			WorldSound( SND_SPARK, tr.HitPos - 2 * tr.HitNormal, 60, 100+math.random(0,10) )
+			sound.Play(SND_SPARK, tr.HitPos - 2 * tr.HitNormal, 60, 100+math.random(0,10), 1 )
 		end
-		
+
 		local effect = EffectData()
 			effect:SetNormal( tr.HitNormal )
 			effect:SetStart( effectpos )
@@ -87,7 +87,7 @@ function TOOL:RightClick( tr )
 		util.Effect( "Sparks", effect )
 		util.Effect( "RepairHit", effect )
 	end
-	
+
 	self.NextRepairTime = CurTime() + 0.02
 	return false
 end
@@ -96,15 +96,15 @@ function TOOL:Think()
 	if !SERVER then return end
 	if !self.NextShockTime then self.NextShockTime = CurTime() end
 	if self.NextShockTime > CurTime() then return end
-	
+
 	local ply = self:GetOwner()
 	if ply:KeyDown( IN_USE ) and !ply:KeyDownLast( IN_USE ) then
 		local trace, _ = self.SWEP:Authorize()
 		if trace then
-		
+
 			self.NextShockTime = CurTime() + 1.25
 			trace.Entity:EmitSound( SND_SHOCK )
-			
+
 			local pos = trace.Entity:LocalToWorld( trace.Entity:OBBCenter() )
 			for _, v in ipairs(ents.FindInSphere(pos,trace.Entity:BoundingRadius()+50)) do
 				if v:IsPlayer() and v != ply and (ply:Team() == 50 or ply:Team() != v:Team()) then
@@ -114,7 +114,7 @@ function TOOL:Think()
 					end
 				end
 			end
-			
+
 		end
 	end
 end
