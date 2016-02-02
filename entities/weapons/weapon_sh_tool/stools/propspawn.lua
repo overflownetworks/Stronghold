@@ -368,7 +368,7 @@ function TOOL:UpdateGhostEntity()
 	local PosOffset = GAMEMODE.SpawnPositionOffset[model] or 0
 
 	if self.SWEP:GetFireMode() == 0 then
-		self.GhostEntity:SetColor( 255, 255, 255, 150 )
+		self.GhostEntity:SetColor(Color( 255, 255, 255, 150 ))
 		local snapdegrees = self:GetClientNumber( "snapdegrees", 45 )
 
 		TargetAngle = Angle( self:GetClientNumber("pitch",0), self:GetClientNumber("yaw",0), self:GetClientNumber("roll",0) ) + Angle( 0, ply:GetAngles().y, 0 )
@@ -400,7 +400,7 @@ function TOOL:UpdateGhostEntity()
 			TargetPos = TargetPos - (TargetAngle:Forward()*center.x + TargetAngle:Right()*center.y + TargetAngle:Up()*center.z)
 		end
 	elseif validprop then
-		self.GhostEntity:SetColor( 255, 255, 255, 150 )
+		self.GhostEntity:SetColor(Color( 255, 255, 255, 150 ))
 		local pos, ang = self.TRACE.Entity:GetPos(), self.TRACE.Entity:GetAngles()
 		local mins, maxs, center = self.TRACE.Entity:OBBMins(), self.TRACE.Entity:OBBMaxs()
 		TargetAngle = ang
@@ -419,7 +419,7 @@ function TOOL:UpdateGhostEntity()
 			TargetPos = pos - (maxs.z-mins.z-1) * ang:Up()
 		end
 	else
-		self.GhostEntity:SetColor( 255, 255, 255, 0 )
+		self.GhostEntity:SetColor(Color( 255, 255, 255, 0 ))
 		return
 	end
 

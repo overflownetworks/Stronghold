@@ -156,7 +156,7 @@ function GM:HUDPaint()
 	if initstate == INITSTATE_OK then
 		self:DrawKillCam( sscale )
 		GBux.HUDPaint()
-		if CONVARS.HUDEnabled:GetBool() then self:DrawBasic( sscale ) end
+		if CONVARS.HUDEnabled and CONVARS.HUDEnabled:GetBool() then self:DrawBasic( sscale ) end
 		--self:DrawHitDetection()
 		self:DrawAdvertBar( sscale )
 	else

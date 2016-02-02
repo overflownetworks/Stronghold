@@ -1,7 +1,5 @@
 function EFFECT:Init(data)
-
-if GetConVarNumber( "sh_fx_muzzleeffectsoff" ) == 1 then
-return end
+	if GetConVarNumber( "sh_fx_muzzleeffects" ) == 0 then return end
 	
 	self.WeaponEnt = data:GetEntity()
 	self.Attachment = data:GetAttachment()
@@ -25,14 +23,14 @@ return end
 
 				particle:SetVelocity( 50 * i * self.Forward + 8 * VectorRand() + AddVel )
 				particle:SetAirResistance( 400 )
-				particle:SetGravity( Vector(0, 0, math.Rand(-10, 10) ) )
-				particle:SetDieTime( math.Rand( 0.5, 1.0 ) )
-				particle:SetStartAlpha( math.Rand( 10, 50 ) )
+				particle:SetGravity( Vector(0, 0, math.random(-10, 10) ) )
+				particle:SetDieTime( math.random( 0.5, 1.0 ) )
+				particle:SetStartAlpha( math.random( 10, 50 ) )
 				particle:SetEndAlpha( 0 )
-				particle:SetStartSize( math.Rand( 1, 4.5 ) )
-				particle:SetEndSize( math.Rand( 6, 7.5 ) )
-				particle:SetRoll( math.Rand( -25, 25 ) )
-				particle:SetRollDelta( math.Rand( -0.05, 0.05 ) )
+				particle:SetStartSize( math.random( 1, 4.5 ) )
+				particle:SetEndSize( math.random( 6, 7.5 ) )
+				particle:SetRoll( math.random( -25, 25 ) )
+				particle:SetRollDelta( math.random( -0.05, 0.05 ) )
 				particle:SetLighting(1)
 				particle:SetColor( 255, 255, 255 )
 		end
@@ -45,14 +43,14 @@ return end
 
 				particle:SetVelocity( 50 * i * self.Forward + 8 * VectorRand() + AddVel2 )
 				particle:SetAirResistance( 400 )
-				particle:SetGravity( Vector(0, 0, math.Rand(-10, 10) ) )
-				particle:SetDieTime( math.Rand( 0.5, 1.0 ) )
-				particle:SetStartAlpha( math.Rand( 10, 50 ) )
+				particle:SetGravity( Vector(0, 0, math.random(-10, 10) ) )
+				particle:SetDieTime( math.random( 0.5, 1.0 ) )
+				particle:SetStartAlpha( math.random( 10, 50 ) )
 				particle:SetEndAlpha( 0 )
-				particle:SetStartSize( math.Rand( 1, 4.5 ) )
-				particle:SetEndSize( math.Rand( 6, 7.5 ) )
-				particle:SetRoll( math.Rand( -25, 25 ) )
-				particle:SetRollDelta( math.Rand( -0.05, 0.05 ) )
+				particle:SetStartSize( math.random( 1, 4.5 ) )
+				particle:SetEndSize( math.random( 6, 7.5 ) )
+				particle:SetRoll( math.random( -25, 25 ) )
+				particle:SetRollDelta( math.random( -0.05, 0.05 ) )
 				particle:SetLighting(1)
 				particle:SetColor( 255, 255, 255 )
 		end

@@ -13,7 +13,7 @@ ENT.DisruptLoop = Sound( "doormod_disrupted.wav" )
 ENT.PickupSound = Sound( "buttons/button19.wav" )
 
 function ENT:Initialize()
-	self.Entity:SetModel("models/weapons/w_slam.mdl") 
+	self.Entity:SetModel("models/weapons/w_slam.mdl")
 	self.Entity:PhysicsInit(SOLID_VPHYSICS)
 	self.Entity:SetCollisionGroup( COLLISION_GROUP_WORLD )
 	self.Entity:SetTrigger( false )
@@ -22,14 +22,14 @@ function ENT:Initialize()
 	self.AmbientSound = CreateSound( self, self.DoorLoop )
 	self.AmbientSound:Play()
 	self.DisruptSound = CreateSound( self, self.DisruptLoop )
-	
+
 	self.Disrupted = 0
-	
+
 	local ent = self:GetParent()
 	if !IsValid( ent ) then return end
 	ent:SetMaterial( "doormod_blocked" )
 	ent:SetKeyValue( "spawnflags", 256 )
-	
+
 	-- FUCKING CLIENT
 	ent.Disruptor = self
 	ent:SetNetworkedEntity( "Disruptor", self )
@@ -39,30 +39,30 @@ function ENT:OnRemove()
 	if self.AmbientSound then
 		self.AmbientSound:Stop()
 	end
-	
+
 	if self.DisruptSound then
 		self.DisruptSound:Stop()
 	end
-	
+
 	local ent = self:GetParent()
 	if !IsValid( ent ) then return end
 	ent:SetMaterial( "" )
 	ent:SetCollisionGroup( COLLISION_GROUP_NONE )
 	ent:SetSolid( SOLID_VPHYSICS )
 	ent.Disrupted = false
-	
+
 	self:EmitSound( self.PickupSound )
 end
 
 function ENT:Use( activator, caller )
 	if !IsValid( activator ) or !activator:IsPlayer() then return end
-	
+
 	local ply = self:GetPlayer()
 	if !IsValid( ply ) then
 		self:Remove()
 		return
 	end
-	
+
 	local my_team, other_team = ply:Team(), activator:Team()
 	if my_team <= 50 or my_team >= 1000 then
 		if ply != activator then return end
@@ -104,7 +104,7 @@ function ENT:Think()
 end
 
 local function DisruptorUse( ply, ent )
-	if IsValid( ent ) and IsValid( ent.Disruptor ) then ent.Disruptor:Use( ply, ply ) end
+	if IsValid( ent ) and IsValid( ent.Disruptor ) then ent.Disruptor:Use( ply, ply, USE_SET, 0 ) end
 end
 hook.Add( "PlayerUse", "DisruptorUse", DisruptorUse )
 

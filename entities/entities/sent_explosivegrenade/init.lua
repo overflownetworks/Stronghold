@@ -14,9 +14,10 @@ function ENT:Initialize()
 
 	local phys = self:GetPhysicsObject()
 	if phys:IsValid() then
+		phys:SetMaterial("gmod_silent")
 		phys:Wake()
 	end
-	
+
 	self.Created = CurTime()
 end
 

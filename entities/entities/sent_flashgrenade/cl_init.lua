@@ -19,9 +19,9 @@ function ENT:Think()
 			self.Flashed = true
 		end
 	elseif self.SmokeTimer < CurTime() then
-		local emitter = self.Emitter
+		local emitter = ParticleEmitter( self:LocalToWorld( Vector(0, 0, self:OBBMins().z) ) )
 		if !emitter then return end
-	
+
 		self.SmokeTimer = CurTime() + 0.05
 
 		local vPos = Vector( 1, 1, 0 )
@@ -38,8 +38,8 @@ function ENT:Think()
 		smoke:SetRoll( math.Rand(-180,180) )
 		smoke:SetRollDelta( math.Rand(-0.2,0.2) )
 		smoke:SetColor(100*R, 100*R, 100*R )
-		smoke:SetAirResistance( 200 )		
-		
+		smoke:SetAirResistance( 200 )
+
 		local smoke = emitter:Add( "effects/dust2", vOffset + vPos )
 		smoke:SetVelocity( VectorRand() * math.Rand(10,30) )
 		smoke:SetGravity( Vector(0,0,math.Rand(10,30)) )
@@ -54,7 +54,7 @@ function ENT:Think()
 
 		emitter:Finish()
 	end
-	
+
 	return true
 end
 

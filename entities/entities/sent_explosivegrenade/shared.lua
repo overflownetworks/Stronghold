@@ -18,7 +18,7 @@ function ENT:Initialize()
 			phys:Wake()
 		end
 	end
-	
+
 	self.Created = CurTime()
 end
 
@@ -41,6 +41,4 @@ function ENT:PhysicsCollide( data, phys )
 	if data.Speed > 50 then
 		self:EmitSound( BounceSnd )
 	end
-	local impulse = -data.Speed * data.HitNormal * .4 + (data.OurOldVelocity * -.6)
-	phys:ApplyForceCenter( impulse )
 end

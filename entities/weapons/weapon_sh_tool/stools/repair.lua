@@ -37,7 +37,7 @@ function TOOL:LeftClick( tr )
 					if tr.Entity:IsOnFire() then tr.Entity:Extinguish() end
 
 					local c = 255 * (tr.Entity:Health() / max)
-					if !GAMEMODE.BuildingProps[tr.Entity] then tr.Entity:SetColor( c, c, c, 255 ) end
+					if !GAMEMODE.BuildingProps[tr.Entity] then tr.Entity:SetColor(Color( c, c, c, 255 )) end
 					sound.Play(SND_SPARK, tr.HitPos - 2 * tr.HitNormal, 60, 100+math.random(0,10), 1)
 				end
 				end

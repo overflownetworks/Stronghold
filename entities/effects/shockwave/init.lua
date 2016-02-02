@@ -2,10 +2,10 @@
 
 local matRefraction	= Material( "refract_ring" )
 
-/*---------------------------------------------------------
+--[[---------------------------------------------------------
    Initializes the effect. The data is a table of data 
    which was passed from the server.
----------------------------------------------------------*/
+---------------------------------------------------------]]--
 function EFFECT:Init( data )
 
 	local effectdata = EffectData()
@@ -24,10 +24,10 @@ function EFFECT:Init( data )
 end
 
 
-/*---------------------------------------------------------
+--[[---------------------------------------------------------
    THINK
    Returning false makes the entity die
----------------------------------------------------------*/
+---------------------------------------------------------]]--
 function EFFECT:Think( )
 
 	self.Refract = self.Refract + 10.0 * FrameTime()
@@ -40,9 +40,9 @@ function EFFECT:Think( )
 end
 
 
-/*---------------------------------------------------------
+--[[---------------------------------------------------------
    Draw the effect
----------------------------------------------------------*/
+---------------------------------------------------------]]--
 function EFFECT:Render()
 
 	local Distance = EyePos():Distance( self.Entity:GetPos() )

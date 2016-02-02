@@ -8,7 +8,7 @@ function ENT:Think()
 		self:Flash()
 		timer.Simple( 10,
 			function( ent )
-				if IsValid( ent ) then 
+				if IsValid( ent ) then
 					ent:Remove()
 				end
 			end, self )
@@ -20,7 +20,7 @@ local FlashSnd = Sound( "Flashbang.Explode" )
 local FlashDistance = 750
 function ENT:Flash()
 	self:EmitSound( FlashSnd )
-	
+
 	local effectdata = EffectData( )
 	effectdata:SetNormal( Vector(0,0,1) )
 	effectdata:SetOrigin( self:GetPos() )
@@ -34,7 +34,7 @@ function ENT:Flash()
 		local dist = norm:Length()
 		if dist <= FlashDistance and (tr.Entity == self or (tr.HitPos-pos):Length() <= 1) then
 			local t = (-dist/FlashDistance+1) * 8
-			local ang = math.Rad2Deg( math.acos(norm:DotProduct(v:GetAimVector()) / dist) )
+			local ang = math.deg( math.acos(norm:DotProduct(v:GetAimVector()) / dist) )
 			umsg.Start( "sh_flashed", v )
 				umsg.Float( math.Clamp(t*(-ang/181+1),0,8) )
 			umsg.End()

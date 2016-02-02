@@ -125,7 +125,7 @@ GM.DonatorPlayerModels = {
 
 GM.ValidPlayerModels = table.Merge( table.Merge({},GM.PlayerModels), GM.DonatorPlayerModels )
 
-GM.ConVars = {}
+GM.ConVars = GM.ConVars or {}
 
 GM.GameOver = false
 GM.LastGameReset = 0 -- Used for timelimit check when the game is reset by either a same map vote or manually reset
@@ -171,37 +171,36 @@ function GM:ShouldCollide( Ent1, Ent2 )
 end
 ]]
 function GM:InitConVars()
-
-	GAMEMODE.ConVars.FragLimit = GetConVar( "mp_fraglimit" )
-	GAMEMODE.ConVars.TimeLimit = GetConVar( "mp_timelimit" )
-	GAMEMODE.ConVars.FriendlyFire = GetConVar( "mp_friendlyfire" )
+	self.ConVars.FragLimit = GetConVar( "mp_fraglimit" )
+	self.ConVars.TimeLimit = GetConVar( "mp_timelimit" )
+	self.ConVars.FriendlyFire = GetConVar( "mp_friendlyfire" )
 	if SERVER then
-		GAMEMODE.ConVars.VoteEnabled = CreateConVar( "sh_voteenabled", "1", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
-		GAMEMODE.ConVars.VoteDelay = CreateConVar( "sh_votedelay", "5", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
-		GAMEMODE.ConVars.VoteTime = CreateConVar( "sh_votetime", "15", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
-		GAMEMODE.ConVars.ChangeMapDelay = CreateConVar( "sh_changemapdelay", "4", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_REPLICATED,FCVAR_ARCHIVE} )
-		GAMEMODE.ConVars.ImmuneTime = CreateConVar( "sh_immunetime", "4", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
-		SetGlobalInt( "mp_fraglimit", GAMEMODE.ConVars.FragLimit:GetInt() )
-		GAMEMODE.ConVars.GBuxMPM = CreateConVar( "sh_gbux_mpm", "6", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
-		GAMEMODE.ConVars.GBuxMPK = CreateConVar( "sh_gbux_mpk", "1.00", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
-		GAMEMODE.ConVars.SpawnCheckDist = CreateConVar( "sh_spawncheckdist", "1000", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
+		self.ConVars.VoteEnabled = CreateConVar( "sh_voteenabled", "1", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
+		self.ConVars.VoteDelay = CreateConVar( "sh_votedelay", "5", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
+		self.ConVars.VoteTime = CreateConVar( "sh_votetime", "15", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
+		self.ConVars.ChangeMapDelay = CreateConVar( "sh_changemapdelay", "4", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_REPLICATED,FCVAR_ARCHIVE} )
+		self.ConVars.ImmuneTime = CreateConVar( "sh_immunetime", "4", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
+		SetGlobalInt( "mp_fraglimit", self.ConVars.FragLimit:GetInt() )
+		self.ConVars.GBuxMPM = CreateConVar( "sh_gbux_mpm", "6", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
+		self.ConVars.GBuxMPK = CreateConVar( "sh_gbux_mpk", "1.00", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
+		self.ConVars.SpawnCheckDist = CreateConVar( "sh_spawncheckdist", "1000", {FCVAR_GAMEDLL,FCVAR_NOTIFY,FCVAR_ARCHIVE} )
 	elseif CLIENT then
-		GAMEMODE.ConVars.HUDEnabled = CreateClientConVar( "sh_hudenabled", "1", true, false )
-		GAMEMODE.ConVars.GBux_Offset = CreateClientConVar( "sh_gbuxoffset", "0", true, false )
-		GAMEMODE.ConVars.HitRed = CreateClientConVar( "sh_hitred", "255", true, false )
-		GAMEMODE.ConVars.HitGreen = CreateClientConVar( "sh_hitgreen", "255", true, false )
-		GAMEMODE.ConVars.HitBlue = CreateClientConVar( "sh_hitblue", "255", true, false )
-		GAMEMODE.ConVars.PPHurtBlur = CreateClientConVar( "sh_pp_hurtblur", "1", true, false )
-		GAMEMODE.ConVars.PPBloodSplat = CreateClientConVar( "sh_pp_bloodsplat", "1", true, false )
-		GAMEMODE.ConVars.PPSpawnProt = CreateClientConVar( "sh_pp_spawnprot", "1", true, false )
-		GAMEMODE.ConVars.PPVignette = CreateClientConVar( "sh_pp_vignette", "0", true, false )
-		GAMEMODE.ConVars.PPVignetteOpacity = CreateClientConVar( "sh_pp_vignette_opacity", "60", true, false )
-		GAMEMODE.ConVars.VoiceChannel = CreateClientConVar( "sh_voice_channel", "1", true, true )
-		GAMEMODE.ConVars.VoiceAlwaysHearPublic = CreateClientConVar( "sh_voice_alwayshearpublic", "0", true, true )
-		GAMEMODE.ConVars.VoiceAlwaysHearTeam = CreateClientConVar( "sh_voice_alwayshearteam", "0", true, true )
+		self.ConVars.HUDEnabled = CreateClientConVar( "sh_hudenabled", "1", true, false )
+		self.ConVars.GBux_Offset = CreateClientConVar( "sh_gbuxoffset", "0", true, false )
+		self.ConVars.HitRed = CreateClientConVar( "sh_hitred", "255", true, false )
+		self.ConVars.HitGreen = CreateClientConVar( "sh_hitgreen", "255", true, false )
+		self.ConVars.HitBlue = CreateClientConVar( "sh_hitblue", "255", true, false )
+		self.ConVars.PPHurtBlur = CreateClientConVar( "sh_pp_hurtblur", "1", true, false )
+		self.ConVars.PPBloodSplat = CreateClientConVar( "sh_pp_bloodsplat", "1", true, false )
+		self.ConVars.PPSpawnProt = CreateClientConVar( "sh_pp_spawnprot", "1", true, false )
+		self.ConVars.PPVignette = CreateClientConVar( "sh_pp_vignette", "0", true, false )
+		self.ConVars.PPVignetteOpacity = CreateClientConVar( "sh_pp_vignette_opacity", "60", true, false )
+		self.ConVars.VoiceChannel = CreateClientConVar( "sh_voice_channel", "1", true, true )
+		self.ConVars.VoiceAlwaysHearPublic = CreateClientConVar( "sh_voice_alwayshearpublic", "0", true, true )
+		self.ConVars.VoiceAlwaysHearTeam = CreateClientConVar( "sh_voice_alwayshearteam", "0", true, true )
 	end
 end
-
+GM:InitConVars()
 -- ----------------------------------------------------------------------------------------------------
 
 -- Added equipment sfx and no footstep sounds when crouched

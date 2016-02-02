@@ -2,7 +2,7 @@ AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 include('shared.lua')
 function ENT:Initialize()
-	self.Entity:SetModel("models/weapons/w_c4_planted.mdl") 
+	self.Entity:SetModel("models/weapons/w_c4_planted.mdl")
 	self.Entity:PhysicsInit(SOLID_VPHYSICS)
 	self.Entity:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
 	self.Entity:SetTrigger( false )
@@ -36,13 +36,12 @@ function ENT:Think()
 end
 
 function ENT:Explosion()
-	if self.Busted == 1 then 
+	if self.Busted == 1 then
 		local effectdata = EffectData( )
 		effectdata:SetNormal( Vector(0,0,1) )
 		effectdata:SetOrigin( self:GetPos( ) )
-		timer.Simple( 10,
-			function( ent )
-				if IsValid( ent ) then 
+		timer.Simple( 10, function( )
+				if IsValid( self ) then
 					local effectdata = EffectData( )
 						effectdata:SetNormal( Vector(0,0,1) )
 						effectdata:SetOrigin( self:GetPos( ) )
@@ -51,13 +50,13 @@ function ENT:Explosion()
 						self:EmitSound( "physics/metal/metal_box_break1.wav", pos, 100, 100 )
 					self:Remove()
 				end
-			end, self )
-		if self.timer < CurTime() - 0.25 then return end			
+			end)
+		if self.timer < CurTime() - 0.25 then return end
 		self:EmitSound( "weapons/stunstick/spark"..math.random(1,3)..".wav", effectpos, 60, 90+math.random(0,20) )
 		util.Effect( "hitsparks", effectdata, true, true )
 		return
 	end
-	
+
 
 	if GetConVarNumber( "sh_fx_explosiveeffectsoff" ) == 0 then
 		local effectdata = EffectData( )
@@ -74,7 +73,7 @@ function ENT:Explosion()
 		dmginfo:SetDamage( 2500 )
 		v:TakeDamageInfo( dmginfo )
 	end
-	
+
 	local explo = ents.Create( "env_explosion" )
 	explo:SetOwner( self.Owner )
 	explo:SetPos( self:GetPos() )
@@ -94,7 +93,7 @@ function ENT:Explosion()
 	shake:Spawn()
 	shake:Activate()
 	shake:Fire( "StartShake", "", 0 )
-		
+
 	self:Remove()
 end
 
@@ -104,7 +103,7 @@ function ENT:WallPlant(hitpos, forward)
     self.Entity:SetAngles( forward:Angle() + Angle( -90, 0, 180 ) )
 end
 
-function ENT:PhysicsCollide( data, phys ) 
+function ENT:PhysicsCollide( data, phys )
 	if self.Busted then return end
 	--if ( !data.HitEntity:IsWorld() ) then return end
 	phys:EnableMotion( false )
@@ -117,7 +116,7 @@ OnTakeDamage
 ---------------------------------------------------------*/
 function ENT:OnTakeDamage( dmginfo )
 	local phys = self.Entity:GetPhysicsObject()
-	self:SetColor( 50, 50, 50, 255 )
+	self:SetColor( Color(50, 50, 50, 255) )
 	if (phys:IsValid()) then
 		phys:Wake()
 	end
@@ -127,7 +126,7 @@ end
 function ENT:Touch(  )
 	local phys = self.Entity:GetPhysicsObject()
 	phys:EnableMotion( false )
-	if self.Busted then 
+	if self.Busted then
 		phys:EnableMotion( true )
 	end
 end

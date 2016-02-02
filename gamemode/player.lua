@@ -186,13 +186,13 @@ function GM:PlayerSpawn( ply )
 		ply.IsGod = true
 		ply:GodEnable()
 		--ply:SetMaterial( "models/dog/eyeglass" )
-		ply:SetColor( 255, 255, 255, 200 )
+		ply:SetColor( Color(255, 255, 255, 200) )
 		timer.Create( "SpawnProt_"..ply:EntIndex(), spawnprot, 1, function( ply )
 			if IsValid(ply) then
 				ply.IsGod = false
 				ply:GodDisable()
 				ply:SetMaterial( "" )
-				ply:SetColor( 255, 255, 255, 255 )
+				ply:SetColor( Color(255, 255, 255, 255) )
 				umsg.Start( "sh_spawnprotection", ply )
 				  umsg.Bool( false )
 				umsg.End()
@@ -478,19 +478,20 @@ function GM:PlayerConnect( name, address )
 		local secondaries = ply:GetLicenses( 2 )
 		local hats = ply:GetLicenses( 5 )
 
-		for class, time_when_over in pairs(primaries) do
+
+		for class, time_when_over in pairs(primaries or {}) do
 			if time_when_over != -1 and time_when_over - ostime <= 0 then
 				ply:RemoveLicense( 1, class )
 			end
 		end
 
-		for class, time_when_over in pairs(secondaries) do
+		for class, time_when_over in pairs(secondaries or {}) do
 			if time_when_over != -1 and time_when_over - ostime <= 0 then
 				ply:RemoveLicense( 2, class )
 			end
 		end
 
-		for class, time_when_over in pairs(hats) do
+		for class, time_when_over in pairs(hats or {}) do
 			if time_when_over != -1 and time_when_over - ostime <= 0 then
 				ply:RemoveLicense( 5, class )
 			end

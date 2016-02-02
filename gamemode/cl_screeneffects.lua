@@ -2,8 +2,8 @@
 
 Fight to Survive: Stronghold by RoaringCow, TehBigA is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons, 
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to Creative Commons,
 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 ---------------------------------------------------------]]
@@ -26,10 +26,10 @@ local BloodMagnitude = 0.01
 local BloodSplatters = {}
 
 function AddBloodSplatter()
-	if !CONVARS.PPBloodSplat:GetBool() then return end
+	if !CONVARS.PPBloodSplat or !CONVARS.PPBloodSplat:GetBool() then return end
 	for i=1, math.random(0,1) do
 		local size = math.random(1024,2048)
-		table.insert( BloodSplatters, 
+		table.insert( BloodSplatters,
 		{x=math.random(100,ScrW()-100),
 		y=math.random(200,ScrH()-200),
 		w=size+math.random(0,50),
@@ -45,7 +45,7 @@ end
 function GM:ScreenEffectsThink()
 	local ply = LocalPlayer()
 	local curtime = CurTime()
-	
+
 	local hp = ply:Health()
 	if !ply.LastHealth then
 		ply.LastHealth = hp
@@ -63,7 +63,7 @@ function GM:ScreenEffectsThink()
 		ply.LastHeal = curtime
 	end
 	ply.LastHealth = hp
-	
+
 	--[[if curtime - FilmGrainLastChange > 0.05 then
 		FilmGrainCurrent = FilmGrainCurrent + 1
 		if FilmGrainCurrent > 6 then
@@ -104,7 +104,7 @@ function GM:RenderScreenspaceEffects()
 	local ply = LocalPlayer()
 	local curtime = CurTime()
 	local sw, sh = ScrW(), ScrH()
-	
+
 	if CONVARS.PPHurtBlur:GetBool() and ply.LastHurt then
 		for k, v in pairs(BloodSplatters) do
 			local b_scale = math.Clamp( -((curtime-v.time)/BloodTime) + 1, 0, 1 )
@@ -122,7 +122,7 @@ function GM:RenderScreenspaceEffects()
 			surface.SetDrawColor( 100, 0, 0, 75*scale*BloodMagnitude )
 			surface.DrawRect( 0, 0, sw, sh )
 			DisableClipping( true )
-				surface.SetMaterial( MAT_BLUR )	
+				surface.SetMaterial( MAT_BLUR )
 				surface.SetDrawColor( 255, 255, 255, 255 )
 				for i=0.25, 0.50, 0.25 do
 					MAT_BLUR:SetFloat( "$blur", scale * 10 * i )
@@ -132,16 +132,16 @@ function GM:RenderScreenspaceEffects()
 			DisableClipping( false )
 		end
 	end
-	
+
 	local colormod_brightness = 0
 	local colormod_contrast_add = 0
 	local colormod_color = 1
-	
+
 	if CONVARS.PPSpawnProt:GetBool() and (SpawnProt or curtime-SpawnProtTime <= (SpawnProtFadeTime+0.05)) then
 		colormod_contrast_add = colormod_contrast_add + 0.20 * (SpawnProt and 1 or math.Clamp( -(curtime-SpawnProtTime)/SpawnProtFadeTime+1, 0, 1 ))
 		colormod_color = (SpawnProt and 0) or math.Clamp( (curtime-SpawnProtTime)/SpawnProtFadeTime, 0, 1 )
 	end
-	
+
 	if Flashed then
 		if !ply:Alive() or curtime > FlashTime+FlashDuration+4*(FlashDuration/8) then Flashed = false end
 		local scale_w = math.Clamp( ((FlashTime - curtime) / FlashDuration) + 1, 0, 1 )
@@ -150,7 +150,7 @@ function GM:RenderScreenspaceEffects()
 		if scale_b > 0 then
 			DrawBloom( 0.10, 1*scale_b, 8+12*scale_b, 0, 8, 1*scale_b, 1, 1, 1 )
 		end
-		
+
 		if scale_w > 0 then
 			local tbl = {}
 			colormod_brightness = 0.60*scale_w
@@ -159,10 +159,10 @@ function GM:RenderScreenspaceEffects()
 			surface.SetDrawColor( 255, 255, 255, 180*scale_w )
 			surface.DrawRect( 0, 0, sw, sh )
 		end
-		
+
 		if scale_b > 0 then
 			DisableClipping( true )
-				surface.SetMaterial( MAT_BLUR )	
+				surface.SetMaterial( MAT_BLUR )
 				surface.SetDrawColor( 255, 255, 255, 255*scale_b )
 				for i=0.25, 0.50, 0.25 do
 					MAT_BLUR:SetFloat( "$blur", scale_b * 10 * i )
@@ -172,7 +172,7 @@ function GM:RenderScreenspaceEffects()
 			DisableClipping( false )
 		end
 	end
-	
+
 	if colormod_brightness != 0 or colormod_contrast_add != 0 or colormod_color != 1 then
 		local colormod = {}
 			colormod["$pp_colour_addr"] = 0
@@ -186,12 +186,12 @@ function GM:RenderScreenspaceEffects()
 			colormod["$pp_colour_mulb"] = 0
 		DrawColorModify( colormod )
 	end
-	
+
 	if SmokeBlur > 0 then
 		surface.SetDrawColor( 0, 0, 0, 200*SmokeBlur )
 		surface.DrawRect( 0, 0, sw, sh )
 		DisableClipping( true )
-			surface.SetMaterial( MAT_BLUR )	
+			surface.SetMaterial( MAT_BLUR )
 			surface.SetDrawColor( 255, 255, 255, 255 )
 			for i=0.50, 1, 0.50 do
 				MAT_BLUR:SetFloat( "$blur", SmokeBlur * 7 * i )
@@ -200,7 +200,7 @@ function GM:RenderScreenspaceEffects()
 			end
 		DisableClipping( false )
 	end
-	
+
 	local hp = ply:Health()
 	if hp > 0 and hp < 75 then
 		local hpscale = -math.Clamp( ply:Health()/75, 0, 1 )+1
@@ -221,16 +221,16 @@ function GM:RenderScreenspaceEffects()
 			end
 		end
 	end]]
-	
+
 	if CONVARS.PPVignette:GetBool() then
 		surface.SetMaterial( MAT_VIGNETTE )
 		surface.SetDrawColor( 255, 255, 255, CONVARS.PPVignetteOpacity:GetInt() )
 		surface.DrawTexturedRect( 0, 0, sw, sh )
 	end
-	
+
 	if self.GameOver then
 		DisableClipping( true )
-			surface.SetMaterial( MAT_BLUR )	
+			surface.SetMaterial( MAT_BLUR )
 			surface.SetDrawColor( 255, 255, 255, 255 )
 			for i=0.50, 1, 0.50 do
 				MAT_BLUR:SetFloat( "$blur", 0.50 * 7 * i )
@@ -238,10 +238,10 @@ function GM:RenderScreenspaceEffects()
 				surface.DrawTexturedRect( 0, 0, sw, sh )
 			end
 		DisableClipping( false )
-	
+
 		surface.SetFont( "DeathCamera" )
 		local tw, th = surface.GetTextSize( "Game over!" )
-		
+
 		local x, y, w, h = 0, math.floor(sh*0.25-th*0.50-10), sw, th+20
 		surface.SetDrawColor( 0, 0, 0, 220 )
 		surface.DrawRect( 0, 0, sw, sh )
@@ -249,7 +249,7 @@ function GM:RenderScreenspaceEffects()
 		surface.SetDrawColor( 200, 200, 200, 255 )
 		surface.DrawRect( x, y+1, w, 1 )
 		surface.DrawRect( x, y+h-2, w, 1 )
-		
+
 		surface.SetTextColor( 255, 255, 255, 255 )
 		surface.SetTextPos( ScrW()*0.50-tw*0.50, y+15 )
 		surface.DrawText( "Game over!" )
@@ -277,7 +277,7 @@ local function SmokeGrenadeBlur()
 			dist = testdist
 		end
 	end
-	
+
 	if dist != -1 then
 		SmokeBlurTarget = math.Clamp( -(dist/275)+1, 0, 1 )
 	else
@@ -285,7 +285,7 @@ local function SmokeGrenadeBlur()
 	end
 	SmokeBlur = math.Approach( SmokeBlur, SmokeBlurTarget, (SmokeBlurTarget-SmokeBlur < 0 and 0.02 or 0.05) )
 end
-timer.Create( "SmokeGrenadeBlur", 0.10, 0, SmokeGrenadeBlur ) 
+timer.Create( "SmokeGrenadeBlur", 0.10, 0, SmokeGrenadeBlur )
 
 --[[function GM:ViewmodelTest()
 	local ply = LocalPlayer()
@@ -296,30 +296,30 @@ timer.Create( "SmokeGrenadeBlur", 0.10, 0, SmokeGrenadeBlur )
 	render.ClearStencil()
 	render.SetStencilEnable( true )
 	render.SetStencilReferenceValue( 1 )
-	
+
 	render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_NEVER )
 	render.SetStencilFailOperation( STENCILOPERATION_REPLACE )
 	render.SetStencilPassOperation( STENCILOPERATION_REPLACE )
 	render.SetStencilZFailOperation( STENCILOPERATION_REPLACE )
-	
+
 	--local fov = 55 - (CV_DEFFOV:GetFloat()-ply:GetFOV())
 	--fov = math.tan(0.50 * math.Deg2Rad( fov )) * (ScrW()/ScrH()*0.75)
 	--fov = math.Rad2Deg( fov ) * 2
-	
+
 	local fov = (wep.TranslateFOV and wep:TranslateFOV(wep.ViewModelFOV) or CV_VMFOV:GetFloat()) - 2.25
 	fov = ( fov - (CV_DEFFOV:GetFloat()-ply:GetFOV()) ) * (ScrW()/ScrH()*0.75)
-	
+
 	cam.Start3D( ply.LastCalcView.origin, ply.LastCalcView.angles, fov )
 		viewmodel:DrawModel()
 	cam.End3D()
-		
+
 	render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL )
-		
+
 	render.SetMaterial( MAT_BLUR )
 	MAT_BLUR:SetFloat( "$blur", 1 * 10 )
 	render.UpdateScreenEffectTexture()
-	
+
 	render.DrawScreenQuad()
-	
+
 	render.SetStencilEnable( false )
 end]]

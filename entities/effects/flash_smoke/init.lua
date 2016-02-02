@@ -1,6 +1,6 @@
 function EFFECT:Init( data )
 
-	if GetConVarNumber( "sh_fx_impacteffectsoff" ) == 1 then return end
+	if GetConVarNumber( "sh_fx_explosiveeffects" ) == 0 then return end
 	
 	local Pos = data:GetOrigin()
 	local Norm = data:GetNormal()

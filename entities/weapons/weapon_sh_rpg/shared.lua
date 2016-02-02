@@ -13,7 +13,7 @@ end
 SWEP.Base 					= "weapon_sh_base"
 SWEP.Spawnable 				= true
 SWEP.AdminSpawnable 		= true
-SWEP.HoldType 				= "rpg"	
+SWEP.HoldType 				= "rpg"
 SWEP.Primary.ClipSize 		= 1
 SWEP.Primary.Delay 			= 0.5
 SWEP.Primary.Automatic 		= true
@@ -36,38 +36,40 @@ function SWEP:RunAnglePreset()
 self.RunArmAngle  = Angle( -10, -10, -10 )
 self.RunArmOffset = Vector( 5, -5, 0 )
 end
-	
+
 function SWEP:CSShootBullet()
 
 	local tr = self.Owner:GetEyeTrace()
-	local ent = ents.Create( "sent_rocket" )
+
 
 	local v = self.Owner:GetShootPos()
 		v = v + self.Owner:GetForward() * (!short and 1 or 2)
 		v = v + self.Owner:GetRight() * 3
 		v = v + self.Owner:GetUp() * (!short and 1 or -3)
+
 	if SERVER then
-	ent:SetPos( v )
-	ent:SetOwner( self.Owner )
-	ent:SetAngles(self.Owner:EyeAngles())
-	ent.RocketOwner = self.Owner
-	ent:Spawn()
- 
-	local phys = ent:GetPhysicsObject()
-	phys:ApplyForceCenter( self.Owner:GetAimVector() * 10000000 + Vector(0,0,200) )
-	--phys:SetVelocity( phys:GetVelocity() + self.Owner:GetVelocity() )
-	phys:EnableGravity(false)
+		local ent = ents.Create( "sent_rocket" )
+		ent:SetPos( v )
+		ent:SetOwner( self.Owner )
+		ent:SetAngles(self.Owner:EyeAngles())
+		ent.RocketOwner = self.Owner
+		ent:Spawn()
+
+		local phys = ent:GetPhysicsObject()
+		phys:ApplyForceCenter( self.Owner:GetAimVector() * 10000000 + Vector(0,0,200) )
+		--phys:SetVelocity( phys:GetVelocity() + self.Owner:GetVelocity() )
+		phys:EnableGravity(false)
 	end
 	self.Owner:RemoveAmmo( 0, self.Primary.Ammo )
-	
+
 	self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK ) 		// View model animation
 	self.Owner:MuzzleFlash()								// Crappy muzzle light
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )				// 3rd Person Animation
-	
+
 	if ( self.Owner:IsNPC() ) then return end
-		
+
 end
 
 function SWEP:DrawWeaponSelection( x, y, wide, tall, alpha )
-	draw.SimpleText( self.IconLetter, "HalfLife2", x + wide*0.5, y + tall*0.1, Color( 255, 220, 0, 255 ), TEXT_ALIGN_CENTER )
+	draw.SimpleText( self.IconLetter, "CSSelectIcons", x + wide*0.5, y + tall*0.1, Color( 255, 220, 0, 255 ), TEXT_ALIGN_CENTER )
 end

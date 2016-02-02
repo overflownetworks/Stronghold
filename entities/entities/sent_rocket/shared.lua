@@ -18,11 +18,6 @@ function ENT:Initialize()
 			phys:Wake()
 		end
 	end
-	if CLIENT then
-	local vOffset = self:LocalToWorld( Vector(0, 0, self:OBBMins().z) )
-	self.Emitter = ParticleEmitter( vOffset )
-	end
-	
 	self.Created = CurTime()
 end
 

@@ -88,7 +88,7 @@ elseif CLIENT then
 		if !IsValid( self.GhostEntity ) then
 			self.GhostEntity = ents.CreateClientProp( "prop_physics" )
 			self.GhostEntity:SetModel( "models/Items/ammocrate_smg2.mdl" )
-			self.GhostEntity:SetColor( 255, 0, 0, 200 )
+			self.GhostEntity:SetColor(Color( 255, 0, 0, 200 ))
 			self.GhostEntity:SetPos( pos )
 			self.GhostEntity:SetAngles( ang )
 			self.GhostEntity:Spawn()
@@ -98,9 +98,9 @@ elseif CLIENT then
 		self.GhostEntity:SetAngles( ang )
 
 		if self.Placeable then
-			self.GhostEntity:SetColor( 0, 255, 0, 200 )
+			self.GhostEntity:SetColor(Color( 0, 255, 0, 200 ))
 		else
-			self.GhostEntity:SetColor( 255, 0, 0, 200 )
+			self.GhostEntity:SetColor(Color( 255, 0, 0, 200 ))
 		end
 	end
 

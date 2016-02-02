@@ -207,7 +207,7 @@ function GM:Think()
 				ply.IsGod = false
 				ply:GodDisable()
 				ply:SetMaterial( "" )
-				ply:SetColor( 255, 255, 255, 255 )
+				ply:SetColor( Color(255, 255, 255, 255) )
 				umsg.Start( "sh_spawnprotection", ply )
 				  umsg.Bool( false )
 				umsg.End()
@@ -251,12 +251,12 @@ function GM:Think()
 				if scale >= 1 then
 					GAMEMODE.BuildingProps[ent] = nil
 					ent:SetHealth( ent:GetMaxHealth() )
-					ent:SetColor( 255, 255, 255, 255 )
+					ent:SetColor( Color(255, 255, 255, 255) )
 					if ent.BuildSound then ent.BuildSound:Stop() ent.BuildSound = nil end
 					ent:BuildingSolidify()
 				else
 					ent:SetHealth( hp )
-					ent:SetColor( 255, 255, 255, 55 + 200 * scale )
+					ent:SetColor( Color( 255, 255, 255, 55 + 200 * scale) )
 				end
 			end
 		end
@@ -532,7 +532,7 @@ function GM:EntityTakeDamage( ent, dmginfo )
 
 	hp = hp - dmginfo:GetDamage()
 	local c = 255 * (hp / max)
-	ent:SetColor( c, c, c, 255 )
+	ent:SetColor( Color(c, c, c, 255) )
 	if hp <= 0 then
 		local pos = ent:LocalToWorld( ent:OBBCenter() )
 		local gibs = ent:PrecacheGibs()

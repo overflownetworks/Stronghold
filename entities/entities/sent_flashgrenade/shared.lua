@@ -8,7 +8,7 @@ function ENT:Initialize()
 	self:DrawShadow( true )
 
 	self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
-	
+
 	if SERVER then
 		local phys = self:GetPhysicsObject()
 		if phys:IsValid() then
@@ -16,10 +16,8 @@ function ENT:Initialize()
 		end
 	elseif CLIENT then
 		self.SmokeTimer = 0
-		local vOffset = self:LocalToWorld( Vector(0, 0, self:OBBMins().z) )
-		self.Emitter = ParticleEmitter( vOffset )
 	end
-	
+
 	self.Created = CurTime()
 	self.Flashed = false
 end

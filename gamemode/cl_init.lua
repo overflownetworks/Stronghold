@@ -52,8 +52,9 @@ GM.KillCam = {
 
 GM.Ragdolls = {}
 
+
 function GM:Initialize()
-	self:InitConVars()
+
 	self:OptionsInit()
 	self:TeamInit()
 	self:LoadoutInit()
@@ -90,7 +91,7 @@ function GM:Think()
 			if IsValid( tbl.ent ) then
 				local scale = math.Clamp( (curtime - tbl.time), 0, 1 ) * -1 + 1
 				local alpha = 255 * scale
-				tbl.ent:SetColor( alpha, alpha, alpha, alpha )
+				tbl.ent:SetColor(Color( alpha, alpha, alpha, alpha) )
 				if scale == 0 then
 					table.remove( GAMEMODE.Ragdolls, i )
 				end
@@ -376,7 +377,7 @@ local SND_CHANNELCHANGE = Sound( "buttons/lightswitch2.wav" )
 function GM:PlayerBindPress( ply, bind, pressed )
 	if string.find( string.lower(bind), "+menu_context" ) != nil or string.find( string.lower(bind), "noclip" ) != nil then
 		ply:EmitSound( SND_CHANNELCHANGE, 70, 100 )
-		RunConsoleCommand( "sh_voice_channel", self.ConVars.VoiceChannel:GetInt() == 0 and 1 or 0 )
+		RunConsoleCommand( "sh_voice_channel", (self.ConVars.VoiceChannel and self.ConVars.VoiceChannel:GetInt() or 0) == 0 and 1 or 0 )
 	end
 end
 

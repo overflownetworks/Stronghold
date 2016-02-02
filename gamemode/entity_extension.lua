@@ -37,15 +37,16 @@ end
 function meta:FixHealthColor()
 	local hp, max = self:GetHealth(), self:GetMaxHealth()
 	local scale = math.Clamp( hp/max, 0, 1 )
+	print("FixHealthColor", scale, m_tblBaseColor)
 	if self.m_tblBaseColor then
-		self:SetColor( self.m_tblBaseColor.r*scale, self.m_tblBaseColor.g*scale, self.m_tblBaseColor.b*scale, 255 )
+		self:SetColor( Color(self.m_tblBaseColor.r*scale, self.m_tblBaseColor.g*scale, self.m_tblBaseColor.b*scale, 255) )
 	elseif self:GetClass() != "bfgm_sent_barricade" then
-		self:SetColor( 255*scale, 255*scale, 255*scale, 255 )
+		self:SetColor( Color(255*scale, 255*scale, 255*scale, 255) )
 	end
 end
 
 function meta:IsColliding( ent, filter )
-	filter = table.Add( filter or {}, {self,GetWorldEntity()} )
+	filter = table.Add( filter or {}, {self, game.GetWorld()} )
 	local mins, maxs, center = self:OBBMins(), self:OBBMaxs(), self:OBBCenter()
 	local hmins, hmaxs = Vector( -0.5, -0.5, -0.5 ), Vector( -0.5, -0.5, -0.5 )
 	local tracepositions = {

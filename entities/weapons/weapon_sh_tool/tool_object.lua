@@ -178,7 +178,7 @@ function ToolObj:MakeGhostEntity( model, pos, angle )
 	self.GhostEntity:Spawn()
 
 	self.GhostEntity:SetRenderMode( RENDERMODE_TRANSALPHA )
-	self.GhostEntity:SetColor( 255, 255, 255, 150 )
+	self.GhostEntity:SetColor(Color( 255, 255, 255, 150 ))
 end
 
 /*---------------------------------------------------------

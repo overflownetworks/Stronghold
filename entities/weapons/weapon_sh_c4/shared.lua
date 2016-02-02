@@ -11,7 +11,7 @@ elseif (CLIENT) then
 	SWEP.ViewModelFlip		= false
 	SWEP.CSMuzzleFlashes	= false
 	SWEP.Slot 				= 2
-	
+
 	killicon.Add("weapon_sh_c4","weapons/c4_sg_killicon",Color(200, 200, 200, 255));
 end
 
@@ -72,12 +72,11 @@ function SWEP:PrimaryAttack()
 	if tr.Hit then
 		self.Owner:SetAnimation( PLAYER_ATTACK1 )
 		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
-		timer.Simple( 3,
-			function( wep )
-				if !IsValid( wep ) then return end
-				wep:Plant()
-				wep:SendWeaponAnim( ACT_VM_DRAW )
-			end, self)
+		timer.Simple( 3, function()
+				if !IsValid( self ) then return end
+				if SERVER then self:Plant() end
+				self:SendWeaponAnim( ACT_VM_DRAW )
+			end)
 	end
 end
 
@@ -105,7 +104,7 @@ function SWEP:Plant()
 		self:TakePrimaryAmmo( 1 )
 		self.Owner:ConCommand( "lastinv" )
 		self.Weapon:Remove()
-	end 
+	end
 end
 
 function SWEP:CanPrimaryAttack()
